@@ -1,0 +1,3005 @@
+﻿[�� �����̳�] 
+
+	- �� ���ø����̼��� ���� �� �� �ִ� �����̳�
+	- Servlet�����̳ʿ� JSP�����̳ʸ� ���ļ� �� �����̶�� ��
+	- ������ WAS���� �� ��
+	- �����δ� ���� �ҽ� �� �����̳��� Tomcat,Jetty���� �ְ� ����� Weblogic,WebShpere,JBoss����
+	  �ִ�.
+	- Tomcat�� ������ WAS(Web Application Server)������ �Ѵٰ� �� �� �ִ�.	
+	
+
+
+	Tomcat���� ����]
+	
+	-----------------+-------------------------+-------------------------+----------------------------
+	Servlet/JSP Spec   | Apache Tomcat version    | Actual release revision      | Minimum Java Version(JDK)
+	-----------------+-------------------------+-------------------------+----------------------------
+	3.1/2.3               |       9.0.x                          |    9.0.0                         |           1.6 
+	 3.1/2.3               |       8.0.x                          |    8.0.37                          |           1.6 
+	   3.0/2.2               |       7.0.x                          |    7.0.26                           |           1.6 
+	   2.5/2.1               |       6.0.x                          |    6.0.35                           |           1.5 
+	   2.4/2.0               |       5.5.x                          |    5.5.35                           |           1.4 
+	   2.3/1.2               |       4.1.x (archived)          |    4.1.40 (archived)           |           1.3 
+	   2.2/1.1               |       3.3.x (archived)          |    3.3.2 (archived)              |           1.1 
+               -----------------+-------------------------+-------------------------+-----------------------
+
+
+
+	[�ֿ� ��������]
+	-Tomcat��ġ�� ���丮\conf 
+		
+		-server.xml]
+		
+			- ��Ʈ�� �����ϰų�(<Connector>������Ʈ�� port�Ӽ����� ����)
+				  <Connector port="8080" protocol="HTTP/1.1" 
+					connectionTimeout="20000" 
+					redirectPort="8443" />
+
+			
+			- Ȩ���丮�� �����ϰų�(<Host>������Ʈ�� appBase�Ӽ����� ����)
+				<Host name="localhost"  appBase="webapps"...
+			
+			- Tomcat������  �������� context�� ����ϰų�(<Host>������Ʈ ���̿�</Host>
+			   <Host>
+				   <Context docBase="JspProj" 
+				   path="/JspProj" 
+				   reloadable="true" 
+				   source="org.eclipse.jst.jee.server:JspProj"/>
+			   </Host>	
+			   ��, ���ڵ�� jsp������ �����Ű�� �ڵ����� ��� ��.
+
+			   Path�Ӽ���  /�� ���ܵθ� ��ũ�� ������Ʈ���� ����� �ʿ� ����.
+
+			   <a href="/JspProj/form.jsp"> --><a href="/form.jsp">
+			   reloadable="true" �� context������ web.xml�� �����ϰų�
+			   ������ڵ带 �����ϴ� ��� �ڵ����� ������ restart�ϵ��� �����ϴ� ����
+
+		-web.xml]
+
+			- ���� ������ �����ϰų�
+
+				  <welcome-file-list>
+			
+					<welcome-file>index.html</welcome-file>
+					<welcome-file>index.htm</welcome-file>
+					<welcome-file>index.jsp</welcome-file>
+				 </welcome-file-list>
+
+			- ������� ����ϰų�
+				<servlet>
+					<servlet-name>�������</servlet-name>
+					<servlet-class>�����Ŭ������ Qualified���(�� ��Ű���� ������ ���)</servlet-class>
+				</servlet>
+
+				<servlet-mapping>
+					<servlet-name>�������</servlet-name>
+					<url-pattern>
+						/�� �����ϴ� ��û��					
+					</url-pattern>
+				</servlet-mapping>
+
+			- ���� ���� �ð��� �����ϰų�
+				<session-config>
+					<session-timeout>30</session-timeout>
+				</session-config>
+
+		-context.xml]
+
+			- ��Ĺ������ �� �������� ��� context(�� �� ���ø����̼�)�� 
+			  �������� ������ �Ӽ����� ������ �� �ִ�.
+
+			  ��]
+
+			  <Context reloadable="true">
+
+			  </Context>
+[�����]
+
+		
+		* ������� (1)������� ��û(request)�� �޾Ƽ� (2)��û�� �м����� �� ��û�� �´�
+		  (3)����Ͻ� ����(Model�� ��������)�� ȣ���ϰ� (4)Model�κ��� �� ������� 
+		  �޾Ƽ� (5)request�� session������ �����ϰ�
+		  ������� �ѷ��� ������ view(jsp������)�� �����ϴ� ������ ����Ѵ�.
+		  ���������� ���õ� view(jsp������)�� ��û�� ����ڿ��� ����(response)�ȴ�
+		  
+
+		- ������� MVC�𵨿��� Controller�� �ش��Ѵ�.
+		- ������� Servlet interface�� implements�Ͽ� ������ �ڹ� Ŭ�����̴�.
+		- ������� ����� ������ ���� �����ȴ�.
+		- ������� ��� �޼ҵ�� ������� ���۵ȴ�
+		- ������� JSP�� ��� ����̴�.
+		- ������̳� JSP���� Java To Enterprise Edition(J2EE)�̴�
+
+		- ������� ó�� ����
+
+							   request(1)         (Tomcat)     (2)  ��ȣ��
+			Web Browser   ----------------------->Servlet�����̳�(����� Ŭ����)<----------------->DB Server
+				   ��                                 |
+				   |			response(4)    	     | View����(3)
+				   +---------------------------------+
+						
+
+		- WAS �������� �������� ���丮 ����
+
+			 :JAVA�� CLASS������ ����Ǵ� ���̱⶧���� �̸� ���� 
+			  WAS�������� �Ʒ��� ���� �������� ����(����� �Ծ�)�� ���´�
+
+				Context Root
+					|
+					+--------WEB-INF
+					            |
+								+---------classes���� (���⿡ Ŭ���� ���ϵ��� ��ġ�Ѵ�)
+								|
+								+---------lib���� (jar������ ��ġ)
+								|
+								+---------src����(java������ ��ġ)
+								|
+								web.xml����
+					
+					Context Root�ؿ��� jsp/html/css/js/�̹�������(jpg.gif��)���� ��ġ�Ѵ�.
+
+					*�����2.4/jsp2.0�Ծ��� web.xml�� �ݵ�� �����ϵ��� �����ϰ� ����.
+					������ �����2.5/jsp2.1������ʹ� 
+					�ܼ��� jsp�θ� ������ �� ���ø����̼��� ���
+					���� ���� �ʾƵ� ��
+					��, ������� �����ϰ��� �Ҷ��� web.xml�� ���� �ؾ� �Ѵ�.
+					
+       [Tomcat�� ��ġ�� ���丮/conf�� �ִ� �ֿ� ���� ����]	
+		-�������ϵ��� ������ �Ŀ��� ��Ĺ�� �׻� ����� �ؾ� �Ѵ�.
+
+		[server.xml]-Tomcat������ ���� ȯ�漳�� ����
+		
+			:��Ĺ�� HTTP ��Ʈ ���񽺸� �����ϰų� �ѱ� ���� �׸��� Context ROOT ���丮 ���� ��..
+			
+			����] �ѱ� �ּ��� �޸� ��Ĺ�� ������ �ȵȴ�.
+
+			���� ����]
+		
+				-<Connector>������Ʈ��  port �Ӽ��� ����
+				-��Ĺ �����
+			
+			�ѱ� ����]
+
+				-POST������� �Ѿ�� ����Ÿ�� �ѱ��� ������ �Ÿ� ���� ���� ����
+				JSP�ҽ����� ����  request.setCharacterEncoding("UTF-8");
+
+									
+
+
+			Context ROOT ���丮 ����]
+			
+				-<Host>������Ʈ�� appBase�Ӽ� ����
+
+				��]
+
+				 <Host name="localhost"  appBase="D:\webApps"
+				    unpackWARs="true" autoDeploy="true"
+				    xmlValidation="false" xmlNamespaceAware="false">
+
+
+
+		[web.xml]
+
+            �� �� ���ø����̼�-WEB-INF-web.xml:�� ���ø����̼Ǹ��� ���� ȯ�� ���� ����
+            servers��-web.xml :�ش� ������ ����ϴ� ��� �� ���ø����̼ǿ� �������� ����Ǵ� ȯ�漳������
+
+
+			- ���� ������ ������ �� �ִ�.
+			- servlet�� ������ �� �ִ�.
+		
+
+			��]
+			<welcome-file-list>
+				<welcome-file>index.html</welcome-file>
+				<welcome-file>index.htm</welcome-file>
+				<welcome-file>index.jsp</welcome-file>
+			</welcome-file-list>
+
+			
+			 
+			 .do��� Ȯ���ڸ� ���� ������ ����� �������� ó���϶�� �ǹ�
+			 �� ���� �ۼ��� Ȯ���ڸ� .do�� �����ϸ� ����� ������ ������ �Ѵ�.
+
+			 <servlet-mapping>
+				<servlet-name>jsp</servlet-name>
+				<url-pattern>*.do</url-pattern>
+			 </servlet-mapping>
+
+			
+
+		[context.xml]
+
+			- Context���� ������ ����Ǹ� �� ������̳� JSP Ȥ�� web.xml �����  �ڵ����� �� �ε� �ϵ��� ����
+			  ��  ��Ĺ�� ����� ���� �ʵ��� �ϱ� ���� ����
+
+			<Context reloadable="true">  
+			</Context>
+
+
+		- ����� �ۼ� ��Ģ �� �׽�Ʈ
+
+
+			1) javax.servlet ��Ű�� �� javax.servlet.http��Ű�� 
+			   �׸��� java.io��Ű���� �⺻������ import�Ѵ�.
+			2) Ŭ������ �տ� public �� �ݵ�� ���δ�.
+			3) ������� extends HttpServlet�� ��� �޾ƾ� �Ѵ�.
+			4) ServletException,IOException ���ܸ� ������ ��� �Ѵ�
+			5) doGet()�޼��� �� doPost()�޼��� �޼��带 �ݵ�� �������̵� �ؾ��Ѵ�.
+			6) ����� ������ ������� ��û�� �޾����� ����� Ŭ������ ���� �Ǿ� �ִ�
+			   doGet() �Ǵ� doPost() �޼ҵ带 ȣ���Ѵ�.
+			   �Ķ���ʹ� HttpServletRequest, HttpServletResponse �ΰ��� Ŭ������ ����Ѵ�.
+			  
+	
+			       
+				doGet():  GET������� ������� ��û�ϴ� ���.
+				              �� ���������� ������� ȣ���ϴ� ��κ��� ȣ�� ���(GET���)
+				               GET ������� ȣ��� ������� 
+					       ����� ������ ������� doGet() �Լ��� ȣ���Ѵ�.
+
+				doPost(): POST ������� ������� ��û�ϴ� ���.
+				          �ݵ�� form��Ҹ� ����Ͽ� ������� ȣ���Ѵ�.
+				          POST ������� ȣ��� ������� ����� ������ ������� 
+					  doPost() �Լ��� ȣ���Ѵ�.
+
+
+				HttpServletRequest:
+
+					������� ������ ����� ������ �����ϴ� ��ü
+						-�Ķ������ �̸��� ��
+						-����� ��ǻ���� �̸�
+						-��û�� �޴� ������ �̸�
+						-input type�� ������
+
+					�ֿ� �޼���
+						- getParameterValues(String name)
+						- getParameter(String name)
+						- getRemoteHost()
+						- getServerName()
+
+				HttpServletResponse:
+
+					�������� �������� ������� ������ ��ȣȭ �Ͽ� ����ڿ��� �����Ѵ�.
+						- �������� ���Ǵ� content�� ����
+						- �������� ���Ǵ� content�� Ÿ��
+						- ȭ�鿡 ����Ͽ��� �ϴ� ��� ��.
+
+
+					�ֿ� �޼���
+
+						-setContentLength(int length)
+						-setContentType(String type)
+						-getWriter()
+
+						
+				
+			    �������̵� ����]
+
+				public void doGet(HttpServletRequest req,HttpServletResponse res)
+					throws ServletException	
+				{
+
+				}
+
+				
+
+				[HTTP���� ������ ���� ���]
+					
+					��) GET ���: 
+						- http ����� ������ ����
+						- �⺻ ���� ���� ���
+						- URL�ڿ� �̸�=���� ���·� ���� ����, �������� ���� �����Ҷ��� & �� ����
+						- �ִ� 4kb���� ����
+						
+					��) POST ���
+
+						- http Body�� ������ ����
+						- ������ ����� ������ ����
+					    - URL�� ������ �ȵǱ⶧���� ������ GET��ĺ��� ���
+	
+
+       
+		- ������� ������ ����Ŭ
+
+			* �����ֱ⿡ ���� ��� �޼���� ����� ������ ȣ���Ѵ�. �����ڰ� ȣ�� ���Ѵ�.
+
+			
+			  init()------->service()----------->destroy()
+
+			
+			��) init(): ù �湮�ڰ� ��û�� �ش� Ŭ������ �޸𸮿� �ε��� ���� ����� 
+						��, �ѹ��� ����ȴ�.			 
+						init()�޼��尡 ȣ��ǰ� ���� �����尡 start�� 
+						�� �����尡 Invoker�� 
+						invoker�� �ϴ����� service()�޼��带 ȣ�� ��
+
+			��) service(): ������� ó���Ǵ� �޼���.
+			                   ����� ������ �ι�° ������� ��û�� �޾����� 
+					   �ٽ� service() �޼ҵ带 ȣ���Ͽ� 
+			               ����� Ŭ������ ���� �Ǿ� �ִ� doGet() �Ǵ� doPost() �޼ҵ带 ȣ���Ѵ�.
+						   �� ������ ȣ�� �� �� ����.
+
+			��) destroy():  ��Ĺ(���������)�� ���� �Ҷ� �� �ѹ� �����.
+
+                  �ι�° �湮�ڰ� �����ϸ� service()�޼��尡 �ٽ� �����
+		
+
+		
+
+		- ����� �ۼ���
+
+			1)Context Root �ȿ� ������� ���� ���丮 ����:��] day1
+			2)�� ���丮 ������ ������ ���� ����
+				day1+
+					+
+					+------WEB-INF
+							  +---------------classes
+							  web.xml
+
+			3)����� �ҽ� �ڵ� �ۼ�
+
+				package hello.world;
+
+				import java.io.*;
+				import javax.servlet.*;
+				import javax.servlet.http.*;     //servlet-api.jar���Ͽ� �����ϴ� ��Ű����
+				public class HelloWorld extends HttpServlet{
+
+					//�������̵�
+					public void doGet(HttpServletRequest request,HttpServletResponse response) throws ServletException,IOException{
+
+						//charset ����- �ѱ۱����� �� ����	
+						res.setContentType("text/html;charset=UTF-8");
+
+						//���������� ���� ������ ����� ���� ��Ʈ��(PrintWriter)�� �Ҵ� ����(�ؽ�Ʈ���� ����Ҷ�)
+						PrintWriter writer = response.getWriter();
+						
+
+
+
+						writer.println("<html>");
+						writer.println("<head><title>Hello World</title></head>");
+						writer.println("<body>");
+						writer.println("<h2>Hello World</h2>");
+						writer.println("</body>");
+						writer.println("</html>");
+						writer..close();
+
+					}
+
+				}
+
+			4)�ҽ��ڵ带 �������ѵ� ������ Ŭ���� ������ classes���丮�� �����Ѵ�
+			  ����� �����Ͻ� -d�ɼ��� �̿��ؼ� WEB-INF/classes���丮�� Ŭ���� ������ ��ġ�ϵ��� ������
+
+				��] src>javac -d ../classes HelloWorld.java 
+			5)web.xml���Ͽ��� ����� ������ �Ѵ�.
+
+				��]
+				<?xml version="1.0" encoding="UTF-8"?>
+
+				<web-app xmlns="http://java.sun.com/xml/ns/javaee"
+				   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+				   xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+				   version="2.5">
+
+					<servlet>	
+
+						<servlet-name>HelloWorld</servlet-name><!--HelloWorldŬ������ HelloWorld��� ����� �̸����� ����Ѵ�--->
+						<servlet-class>hello.world.HelloWorld</servlet-class>
+					</servlet>
+
+					<servlet-mapping>
+						<servlet-name>HelloWorld</servlet-name>
+						<url-pattern>/Hello</url-pattern>        <!-- urlâ���� ���ؽ�Ʈ/Hello��� ú���� HelloWorld��� ������� ó�� �ǵ��� ����-->
+					</servlet-mapping>
+
+					<welcome-file-list>		
+						<welcome-file>default.do</welcome-file>	<!-- �ɼ� ����:Context Root�� ���۹����� default.do�� ������ ����-->		
+				    </welcome-file-list>
+
+				</web-app>
+
+				6)��Ĺ ������ ������������ ������ ������ �׽�Ʈ�� ����.
+
+
+
+				[����� ���α׷��� ����-MVC���]
+
+				STEP1] ����� �ۼ�
+
+				- ��� ������� ��û�� ������� �޴´�(JSP�� �ƴ϶�)
+				  �ֳ��ϸ� ������� ��Ʈ�ѷ� �̱⶧����
+
+			        - ������ڵ忡�� ������ ����
+
+					1. ����ڰ� ������ ���� ������ REQUEST��ü�� getParameter()�� �޴´�
+					2. ��û�м��ؼ� model(�����Ͻ� ����)�� ȣ��
+					    ��] SimpleBoardDAO dao = new SimpleBoardDAO();
+					    ���࿡ �𵨿��� ��ȯ���� ������ �� ���� ��Ʈ�ѷ����� �޴´�.
+						 List<SimpleBoardDTO> dto=dao.getSelectAll();
+				        3. �𵨿��� ���� ���� request �� session������ �����Ѵ�.
+					    
+					    ��]
+					    req.setAttribute("�Ӽ���",dto);
+
+					4. view������ ������ �̵�
+
+						RequestDispatcher ��ü�� request��ü��
+						getRequestDispatcher()�޼���� �� forward��Ű�ų�(Request���� ����)
+
+						Ȥ�� response��ü�� sendRedirect()�޼���� �̵���Ų��(request���� ���� ����
+
+						����: forward ��ų������ ���ؽ�Ʈ ��Ʈ�� ������ ��θ� �����ϰ�
+						        redirect��ų������ ���ؽ�Ʈ ��Ʈ�� ������ ��θ� �����Ѵ�.
+
+					        ��]
+						forward:
+
+						RequestDispatcher dis = 
+						req.getRequestDispatcher("/MvcSimpleBoard/List.jsp");
+						dis.forward(req,resp);
+
+						Redirect:
+
+						resp.sendRedirect(req.getContextPath()+"/MvcSimpleBoard/List.jsp");
+
+					STEP2] ����� ��û�� ������� ���� �� �յ��� WEB.XML�� ������� ����
+
+						-<servlet-name> ������Ʈ�� ������ ��������� ���Ƿ� �����ϵ� web.xml�ȿ���
+						   �����ؾ��Ѵ�. �� �ߺ��Ǽ��� �ȵȴ�.
+
+						 -<url-pattern>�� ������ ������ ��û�� �ִ� ��� �������� ��ġ�ϴ�
+						   ����� Ŭ�������� ������� ��û�� �����Ѵ�.
+						
+						<!-- MVCList��� �̸����� ����� ��� -->
+						<servlet>
+  							<servlet-name>MVCList</servlet-name>
+  							<!-- ��Ű���� ������ Ŭ������ ��ü ��� -->
+  							<servlet-class>simple.controller.ListController</servlet-class>
+						</servlet>
+
+						<servlet-mapping>
+  							<servlet-name>MVCList</servlet-name>
+  							<!-- ��û ���Ͽ� �ش��ϴ� URL,�� ���ؽ�Ʈ ��Ʈ�� ������ / ���� �ۼ� -->
+  							<url-pattern>/MvcSimpleBoard/List.green</url-pattern>
+						</servlet-mapping>
+
+					STEP3] JSP���� ��û��
+						- ���ؽ�Ʈ ��Ʈ ��θ� ������ url������ ����
+					<a href="<%=request.getContextPath()%>/MvcSimpleBoard/List.green">
+					���</a>
+
+
+				[����� ���α׷��� ���]
+
+				STEP1] ��û������ ��ũ�� �����Ѵ�
+					 ��] <a href="���ؽ�Ʈ��Ʈ/���丮�� ���/��û��">:GET���
+					      <form action="���ؽ�Ʈ��Ʈ/���丮�� ���/��û��" method="post">:POST���
+
+				STEP2]web.xml�� ��û��� ������� �����Ѵ�
+					��]
+
+					 <servlet>
+						<servlet-name>�������(���������)</servlet-name>
+						<servlet-class>��Ű���� ������ Ŭ�������</servlet-class>
+					  </servlet>					  
+					  <!-- ��ϵ� ������� url�������� ���� -->
+					  <servlet-mapping>
+						<servlet-name>�������(���������)</servlet-name>
+						<!--���ؽ�Ʈ ��Ʈ ����--->
+						<url-pattern>/���丮�� ���/��û��</url-pattern>
+					  </servlet-mapping>
+				STEP3] ����� �ۼ�
+				           -����� ��û�ް� �м��ϰ� Model�� �����Ͻ����� ȣ���ϰ�
+					    �� ����� request�� session������ ����
+					    view(jsp������)������ redirect�� forward��Ų��.
+					    redirect�ÿ��� ��ο� �ݵ�� ���ؽ�Ʈ��Ʈ�� ���δ�
+					    forward�ÿ��� ����
+					    ��]
+					    -redirect(������Ʈ ���� ���� ����)
+					    resp.sendRedirect(req.getContextPath()+"/���丮/jsp������");
+					    -forward(������Ʈ ���� ����)
+					    RequestDispatcher rd= req.getRequestDispatcher("/���丮/jsp������");
+					    rd.forward(req,resp);
+				STEP4] VIEW(JSP������)�ۼ��� JSTL�� EL�� request��session������
+				           ����� �� ���
+					
+
+[JSP(Java Server Page)]
+
+	- JSP �� �� �󿡼� ������ ���ø����̼��� �����ϴ� ������� �ϳ��̴�
+	- JSP�� ����ڷκ��� ȣ�� �� �� �ڵ����� servlet���� ��ȯ�ȴ�.
+	- JSP�� ���������� ��������� Exception���� �Ѵܰ� �� Ŭ������ ThrowableŬ������
+	  try ~catch�ϱ⶧���� �����ó�� ����ó�� �����־ ��.�⺻���� ���ܴ� ó����
+	- ���� Programming code�� ���� ������ �� �������� ���� �� �� �ִ�.
+	- �ڹ� �ڵ�� HTML �ڵ带 ������ �����Ͽ� ����� �����ϴ�
+	- ��������� ����, ������.
+	- ������ �κа� ���� �κ��� �и���ų �� �ִ�.
+	- ���α׷��Ӱ� ���� �ڵ��� Servlet���� ����ȭ�� Servlet�� �������� 
+	  ȿ������ �ڵ尡 ���������.
+	- JSP�� Ȯ��� ������Ʈ�� ��� �� �� ����(Java Beans,Custom Tag ���̺귯��)
+
+	* JSP�� ����� �ڵ�(�ڹ��ڵ�)�� ��ȯ�� �ڵ��
+	Tomcat ����->work->Catalina->localhost���� �Ʒ��� �����Ѵ�.
+	
+	* ��Ŭ������ �۾��ÿ��� workspace�Ʒ�
+	.metadata\.plugins\org.eclipse.wst.server.core\tmp0\work�Ʒ��� �� ã���� ��
+	
+	
+	
+
+
+	JSP�� ó�� ����]
+
+		
+
+                                        JSP��û(1)    (Tomcat)        JSP�� ���õ� �����Ŭ������ ���°��
+			Web Browser   ------------->JSP �����̳� --------------->JSP������
+				                     ��     |                          |
+					     ó�� |     |�������               |JSP�κ��� �ڹ��ڵ� ����
+                                                ��� |                      |��û����               |
+                                                ���� |	                 |                          |		 																								��
+						     |     ��	��																			  
+                                             DB ����	     �����   <---------------- �ڹټҽ��ڵ�
+                                                                    ������
+
+
+GET /JSPProj/ HTTP/1.0
+
+	JSP�� ���� ���]
+
+
+		1)���þ�(Directive)
+
+			- ���´� <%@���þ�%> �̴�
+			
+			����:
+
+				��) page ���þ�: JSP�������� JSP���Ͽ� ���� ������ �˷��ִ� ���� 
+					
+						page ���þ��� �Ӽ���
+
+						   -contentType : MIME Ÿ���� ���.  �����ش� �� ���δ�.
+						                        text/html,text/plain,text/xml�� image/jpg
+									��] contentType="text/html;charset=UTF-8"
+								        charset=UTF-8:
+									����� ���õ� ������ ���ڵ� ��
+									(HttpServletResponse��ü��
+								        setContentType("text/html;charset=UTF-8");ȿ���� ����
+						   
+						   -import : java�� ���̺귯���� import ��. �ߺ� ����� ������ �Ӽ�
+									��]
+									<%@ page import = "java.util.*, java.sql.*"%>
+									<%@ page import = "java.io.*"%>
+
+
+						   -info   : jsp���Ͽ� ���� ����.��] info= "page���þ ���� ��������"
+						  
+						   -language :����ϰ� �ִ� ���.��] language="java"
+						   -session : ������ ��뿩�� ����. ��] "true"(�⺻��)| "false"									
+
+						   -buffer :  ������ ��� ���� ����. "8kb"(�⺻��)| "none"
+									  none���� ������ jsp�� ����ϴ� ������ 
+									  ���ۿ� ������ �ʰ� 
+									  �ٷ� ���������� �����ϱ⶧����
+									  <jsp:forward>����� ����� �� ����.
+						   -autoflush: JSP �������� ������� �������� ��µǱ� ���� ���۰� 
+						                   �� á�� ��� �ڵ� flush����
+						               ��] "true"(�⺻��)| "false"
+									   false:���۰� �� á�� ��� ���ܸ� �߻���Ű�� �۾��� ����
+						   -errorPage: �����߻��� ������ ������ ����. ��] "/error.jsp"
+						   -isErrorPage: ���� JSP �� ����ó���� ����ϴ� �������ΰ��� �����ϴ� �Ӽ�
+								     ��] "false"(�⺻��)| "true"
+						   -pageEncoding: JSP ���������� ����ϴ� ������ 
+						                             encoding�� ������ �� ���
+						                  contentType�� charset�� ������ �����ϰ� �����Ѵ�.
+								  *��û�� ���õ� ������ ���ڵ� ��
+								   HttpServletRequest��ü�� setCharacterEncoding("UTF-8")ȿ���� ����
+										<%@ page pageEncoding="UTF-8" %>
+										<%@ page contentType="text/html;charset=UTF-8" %>
+										Ȥ��
+										<%@ page  contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1"%>						   
+						
+
+
+						   ���� ������ ���� ��]
+								- Operator.jsp]
+
+									<%@ page  contentType="text/html; charset=UTF-8" errorPage="error.jsp"%>
+
+									<html>
+									<head>
+										<title>Operator.jsp</title>
+									</head>
+									<body>
+									<%
+										int num1 =10;
+										int num2 =0;
+									%>
+									<h2>num1�� num2�� ��Ģ����</h2>
+									num1 + num2 = <%= num1 + num2 %><p>
+									num1 - num2 = <%= num1 - num2 %><p>
+									num1 * num2 = <%= num1 * num2 %><p>
+									num1 / num2 = <%= num1 / num2 %><p>
+									</body>
+									</html>
+
+								-error.jsp]
+
+									<%@ page contentType="text/html; charset=UTF-8" isErrorPage="true" %>									
+									<html>
+									<head>									
+									<title>Error Page</title>
+									</head>
+									<body>
+									<h2>������ ���� ���ܰ� �߻� �Ͽ����ϴ�.</h2>
+										<%=exception.getMessage()%>
+										<!--exception�⺻ ��ü�� ���������������� ��밡���� ��ü-->
+										<!-- IE�� ������ ������쿡 �������� ������  ����ȭ���� �ƴ�  
+										       ��ü ���� �����޽��� ȭ���� ������-->
+										<!--
+										    ��������ڵ尡 404��500�� ���� �����ڵ��̰� ��ü 
+										    ���� ��� ����Ÿ�� ���̰� 513���� ������
+										    ���� ���þ� ������ web.xml�� ������ ���� �����ڵ峪 ����Ÿ�Կ� ���� ������������
+										    �����Ҽ� �մ�.
+										-->
+									
+										
+									</body>
+									</html>
+
+
+
+			  
+			  ��) include ���þ� : �������� ���� �Ҷ� ���.
+
+			  			   -file : �ش� �������� �ҽ��� �״�� ���� ��.
+						           ��] "include.jsp" 
+						   - ��� jsp���������� �����ϴ� ���� ����ó� �޼ҵ� ���ǽ� ���
+						   - HTML����� ���ԵǴ°� �ƴ϶� �ҽ���ü�� �״�� ���Ե��̾���
+                                                     ���Ե� �ҽ��� �Բ� �ڹ��ڵ�� ��ȯ�� 
+						   - file�Ӽ����� ����γ� Ȥ�� Context ��Ʈ�� ������
+                	                              /�� �����ϴ� ������ ����                
+						   -���þ� �ȿ��� JSP�ڵ�(��ũ���� ����) ���Ұ�
+
+						     ��]  file="/Template/Left.jsp" Ȥ��  file="../Template/Left.jsp"
+
+						<%@ include file="������ ���� ���" %>
+				
+			  ��) taglib : EL(Expression Language), JSTL(JSP Standard Tag Library), Custom Tag�� JSP ���������� ����Ҷ� ����Ѵ�.
+
+						
+						   -uri : "http://java.sun.com/jsp/jstl/core"
+						   -prefix: "c"
+
+						   ��]
+						   <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+							<c:set var="Num" value="100" %>
+
+
+		 2) ��ũ���� ����(Scripting Element)
+
+			   -���: jsp���������� �ڹ� �ڵ带 ���� �ۼ��� �� �ְ� �ϴ� ���
+
+			   
+			   -����:
+
+					��) ����(declaration)��
+						
+							- ���´� <%!�ڹ��ڵ�%>
+							- ��������� ���� 
+							   �Ǵ� ��� �޼��带 �����ϴ� �뵵�� ����Ѵ�.
+							- _jspService() �޼ҵ� �ܺο� ����ȴ�.
+
+							��]
+
+							<%@ page contentType="text/html;charset=UTF-8"%>
+
+							<h1>Declaration Example2</h1>
+							<%!
+							  int var1;
+							  int var2 = 1;
+
+							  public int plusMethod(){
+							   return var1 + var2;
+							  }
+
+							  String msg;
+							  int var3;
+							  
+							%>
+
+							var1 �� var2�� ���� ? <%=plusMethod()%><br/>
+							���� msg�� ���� ? <%=msg%><br/>
+							���� var3�� ���� ? <%=var3%>
+
+
+
+								
+					��)	��ũ��Ʈ��(scriptlet)
+
+							- ���´� <%�ڹ��ڵ�%>
+							- ������� ��û�� ���� ���డ���� �ڹ� �ڵ带 �ۼ�.
+							- _jspService() �޼ҵ峻�� ���Եȴ�.
+							- �� �ȿ����� �޼ҵ带 ������ �� ����
+							- html �� �ڹٽ�ũ��Ʈ �ڵ� �� css�ڵ�ȿ��� ��밡��
+
+					��) ǥ����(expression)
+					
+							- ���´� <%=�ڹ��ڵ�%>
+							- _jspServive method ���� �ڹ� �ڵ�� ��ȯ�ȴ�
+							- ������ ���� �����ݷ�(;)�� ������ �ʴ���
+							- ����� ȭ�鿡 ����Ѵ�.
+							- �ܼ� ǥ���� �ܿ� �������� �����̳� �Լ��� ȣ���ϴ� �͵� �����ϴ�
+							- html �� �ڹٽ�ũ��Ʈ �ڵ� �� css�ڵ�ȿ��� ��밡��
+
+				
+
+	JSP�� �ּ�]
+	
+	HTML(XML) �ּ�:<!-- �ּ� -->
+	JSP �ּ�:<%-- �ּ� --%>
+	Java Code �ּ�:<% // ���� �ּ� %>,<% /*������ �ּ�*/ %>
+
+
+
+	JSP ���� ��ü]
+
+		-JSP �����̳ʰ� �ڵ����� �����ϴ� ��ü�� 9������ �⺻��ü�� �ִ�.
+
+		-----------------+-------------------------------------------------+-------------------------------
+		�⺻��ü	 |	 Ÿ��					   |   �� ��
+		-----------------+-------------------------------------------------+------------------------------
+		request          |       javax.servlet.http.HttpServletRequest     |    Ŭ���̾�Ʈ�� ��û ���� ����
+		-----------------+-------------------------------------------------+------------------------------
+		response         |       javax.servlet.http.HttpServletResponse    |    �������� ����
+		-----------------+-------------------------------------------------+-----------------------------------------
+		out		         |	 javax.servlet.jsp.JspWriter               |    ���������� ����� ���� ��� ��Ʈ��
+		-----------------+-------------------------------------------------+----------------------------------------
+		session          |       javax.servlet.http.HttpSession            |    ���� ������ ����
+		-----------------+-------------------------------------------------+------------------------------------
+		application      |       javax.servlet.ServletContext              |    �� ���ø����̼ǿ�  ���� ���� ����
+		-----------------+-------------------------------------------------+------------------------------------------
+		pageContext      |       javax.servlet.jsp.PageContext             |     jsp�������� ���� ���� ����
+		-----------------+-------------------------------------------------+-----------------------------------------
+		page             |       java.lang.Object                          |     JSP ������ ��ü�� ��Ÿ���� ��ü ,
+		                                                                              page ��ü�� this reference�� page ��ü�� ���� �� �� ����
+		-----------------+-------------------------------------------------+---------------------------------------------
+		config           |       javax.servlet.ServletConfig               |     �ϳ��� ������� ���� ���� ����
+		-----------------+-------------------------------------------------+-------------------------------------------
+		exception        |       java.lang.Throwable                       |     ���ܰ�ü.���� ������������  ��밡��
+		-----------------+-------------------------------------------------+-------------------------------------------------
+		
+		*ServletContext(Context �� ������Ʈ ��ü ������ ���� ������ 
+		                       �������̽��� ������ ���� ��) �� �� ���ø����̼� �ϳ��� �ϳ�
+		 ServletConfig(�� ���ø����̼��� �����ϴ� ������� ���� ������
+		                     �������̽��� ������ ���� ��) �� Servlet�ϳ��� �ϳ�
+		
+		SevletContext�� ServletConfig�κ��� ��� �޾Ҵ�.
+
+
+		 ServletContext�� jsp���� Application���� ��ü�� ����
+		 ServletConfig�� jsp���� config ���� ��ü�� ����.
+
+		1) request ��ü
+
+			- ���� ���� ���Ǵ� ��ü�� ���������� ��û�� ������ �մ� ��ü.
+			  �� Ŭ���̾�Ʈ�� ������ ��û ������ �����ϴ� ��ü
+			
+			- request��ü�� �����ϴ� ��� :
+				��)Ŭ���̾�Ʈ�� ���õ� ����
+				��)������ ���õ� ����
+				��)Ŭ���̾�Ʈ�� ������ ��û �Ķ���� �� �������
+				��)Ŭ���̾�Ʈ�� ������ ��Ű������
+
+			- �ֿ� �޼���
+
+				��)Ŭ���̾�Ʈ�� ������ ȯ�������� ���õ� �޼���
+					String getMethod():��û���(GET, POST, PUT)���
+					String getRequestURL():��û�� URL�� return(��ü URL )
+					String getRequestURI():��û�� URI�� return(������ �κ��� ����)
+					String getProtocol():��û�� ���� ���������� return
+					String getServerName():��û�� ���� ������ �̸��� return(�����θ�)
+					int getServerPort():������ ��Ʈ��ȣ�� return
+					String getRemoteAddr():����� ��ǻ���� IP Address�� return
+					                                             WIN7�ΰ�� url�� localhost������ �ּ� ����
+										     IPV6�ּ� ���� . 127.0.0.1�̳� Ȥ�� ������ �ּҷ� �׽�Ʈ
+					HttpSession getSession():
+					request�� ������ session��ü�� ��ȯ ������ 
+					���Ӱ� ����
+					*���긴������ request��ü�� getSession����
+					HttpSession��ü�� ���� ������ jsp������
+					session�̶�� �⺻ ���尳ü�� �����ϱ⶧����
+					����� ���� ���� ����(����ο����� <%! %>�⺻ ���� ��ü ������)
+					String getContextPath(): �� ���ø����̼��� ���ؽ�Ʈ�� ��� return 
+					*html���� ������ �̿�� getContextPath()���
+
+				��)Ŭ���̾�Ʈ���� ���� �Ķ���� �� ���� ���õ� �޼���
+					String getParameter(String name):�̸��� name�� �Ķ������ �� ��ȯ,
+					                                 �������� ���� ��� null return
+					String[] getParameterValues(String name):
+					�̸��� name�� ��� �Ķ������ ���� 
+					�迭�� ��ȯ ,
+
+					�������� ���� ��� null return
+
+					Enumeration getParameterNames():
+
+					�� �������� ������ �Ķ������ �̸�
+						��]
+							Enumeration paramNames = request.getParameterNames();
+							while(paramNames.hasMoreElements()){
+							
+									String name= (String)paramNames.nextElement();
+
+							}
+
+				��)HTTP����� ���õ� ����
+
+					String getHeader(String name):name�� �ش��ϴ� ����� ���� return
+					Enumeration getHeaderNames();��� ����� �̸��� return
+
+						��]
+
+							Enumeration headernames = request.getHeaderNames();
+
+							while(headernames.hasMoreElements()){
+
+								String name = (String)headernames.nextElement();
+								String value= request.getHeader(name);
+								out.println(name+":"+value);
+							}
+			
+				
+
+		2) response��ü
+			
+			- request��ü�� �Բ� ���� ���Ǵ� ��ü�� ���������� ������ 
+			  ���������� ��� �ִ� ��ü
+			- response��ü�� �ֿ� ����� 
+			  ��������� ��� ������ ����ϰų� 
+			  ������ �̵��̴�.
+
+			- �ֿ� �޼���
+
+				��)���� Content ������ �ʿ��� �޼ҵ�
+				
+					setContentType(String type) :���� ����Ʈ�� MIME Ÿ�԰� ���� encoding �� ����.
+					                                                       JSP������ PAGE���þ Content-Type�̶��
+											       �Ӽ��� ���� �Ǿ� ����.
+											       ��������� ���� ���������� �ٷ� ��½ÿ�
+											       ���
+
+				��) ���� ��� ������ ���� �޼ҵ�
+
+					addCookie(Cookie cookie):Cookie cookie�� ���信 �߰�.
+
+					boolean containsHeader(String name):
+					String name�� �̸����� ������ ���� ����� �ִ��� boolean ������ ��ȯ.
+					�⺻ ����� Content-Type �� Content-Length���� ���� ���� �Ǵܽ�
+					��,Content-Length�� body�±� ���Ŀ��� �Ǵ� �ؾ���.�ֳ��ϸ� ����� ���� ���̰�
+					����ٵ� ��������.....
+
+					setHeader(String name, String value):
+					String name�� �̸����� ������ ����� String value�� ������.
+					setIntHeader(String name, int value):String name�� �̸����� ������ ����� int value�� ������.
+					setDateHeader(String name, long date):String name�� �̸����� ������ ����� long ���� date�� ������.
+					                                      date���� 1970�� 1�� 1�� ���ķ� �巯�� �ð��� 1/1000�� ������ ����
+								
+										
+					addHeader(String name, String value):
+					String name�� �̸����� ������ ����� 
+					String value�� �߰��Ͽ� ����.
+					addIntHeader(String name, int value):	
+					String name�� �̸����� ������ ����� int value�� �߰��Ͽ� ����.
+					addDateHeader(String name, long date):
+					String name�� �̸����� ������ ����� long ���� date�� �߰��Ͽ� ������
+
+
+					*ADD�迭�� ���� ������� �����ϰ����Ҷ�
+					 SET�迭�� ���Ӱ� ����� �߰��ϰ��� �Ҷ�
+
+
+				��)������ �̵��� ���� �޼���
+
+					sendRedirect(String page):�̵��� ������ ��θ� �־� �ش�.
+					������������ ���ؽ�Ʈ ��Ʈ�� ������ ���
+
+ 
+		3) out��ü
+
+			- JSP �������� ������  ����� 
+			  �� �������� ������ �ִ� ��� ��Ʈ���� ��Ÿ����
+			- JSP �������� ���������� ������ ��� ������ out ��ü�� ���� ������ �ȴ�
+
+			- �ֿ� �޼���
+
+				��)��¿� ���� �޼���
+					
+					print(): ������ ���
+					println():\n�� �Բ� ������ ���
+					newLine():\n���
+
+
+				��)���ۿ� ���� �޼���
+
+					boolean isAutoFlush():��� ���۰� ������ á�� �� �ڵ����� flush �Ǹ�
+					                      true�� ��ȯ,���ܰ� �߻��ϸ� false�� ��ȯ 
+					int getBufferSize():��� ������ size�� int byte �� ��ȯ.
+					int getRemaining():	��� ���ۿ��� ���ǰ� ���� �κ��� size�� 
+					                          int byte�� ��ȯ.
+					clearBuffer():��� ���ۿ� ��� ������ ��� ������ ���.
+					clear() :��� ���۸� ���� ������ ���۰� ��µǾ����� IOException �߻���Ŵ.
+					flush():��� ���ۿ� ��� ��Ʈ���� flush ��Ŵ
+
+					��]
+							out.println("Hello");
+							out.flush();
+							out.println("World");
+							out.clearBuffer();
+							out.println("Hi");
+
+		4)pageContext ��ü
+
+			- �ش� jsp�������� �⺻ ���� ��ü�� ��� �� �� �ִ� ��ü
+			- ���� ��ü�� �Ӽ��� ���� �� ����.
+			- ���������� ��� �� �� �ִ� ��ü 
+
+
+			- �ֿ� �޼���
+
+				ServeltRequest getRequest(): ������ ��û ������ ���� �ִ� 
+				request ���ΰ�ü�� return
+				ServeltResponse getResponse():������ ��û�� ���� 
+				���������� ���� �ִ� response ��ü�� return
+				JspWriter getOut():	������ ��û�� ���� ���� ��� ��Ʈ���� 
+				out ��ü�� return
+				HttpSession getSession():��û�� Ŭ���̾�Ʈ�� ���� ������ ��� �ִ�
+							HttpSession ��ü�� return
+				ServletContext getServletContext():�������� ���� 
+				����� ���� ȯ�������� ��� �ִ� application ���� ��ü�� return
+				Object getPage():page ���� ��ü�� return
+				ServletConfig getServletConfig():�������� ����� �ʱ� 
+				  ���������� ��� �ִ� config ���� ��ü�� return
+				Exception getException():������ �����߿� �߻��Ǵ� 
+				������������ ���� ���������� ���� �ִ� Exception ���ΰ�ü�� return
+
+
+		5]application ��ü
+
+			- �� ���ø����̼Ǵ� 1���� ��ü�� �����Ǹ�,
+			  �� ���ø����̼ǿ� ���Ե� ��� JSP�������� �ϳ��� application��ü�� ������
+			- �� ���ø����̼� ���ݿ� ���ļ� ���Ǵ� ������ ��� ����.
+			- ���� �������� �о� �� ���� �մ�.
+
+			- �ֿ� �޼���
+				
+				��) ���ؽ�Ʈ �ʱ�ȭ �Ķ���͸� �о� �ü� �ִ� �޼���
+
+					 String getInitParameter(String name):
+					 name�̶�� �̸��� �� ���ø����̼��� �ʱ�ȭ �Ķ���� ���� �о� �´�.
+					 Enumeration getInitParameterNames():
+					 �ʱ�ȭ �Ķ������ �̸� ��� return
+
+
+					 *�ʱ�ȭ �Ķ���ʹ� WEB-INF/web.xml���� <context-param>������Ʈ�� ����Ͽ� �����Ѵ�
+
+					 ��]
+						<context-param>
+							<description>����Ʈ ������</description>
+							<param-name>MyDomain</param-name>
+							<param-value>www.mydomain.com</param-value>
+						</context-param>
+
+				��) ���� ������ �о� ���� �޼���
+
+
+					String getSeverInfo():������ ���� ����(��]Apache Tomcat/6.xx)
+					String getMajorVersion():����� �Ծ��� ���� ���� �� ���� �κ� ����
+					String getMinorVersion():����� �Ծ��� ���� ���� �� �Ҽ� �κ� ����
+
+
+				��)������ ������ ��θ� ��� ���� �޼���
+					
+					String getRealPath(String path): 
+					        ������ ��θ� �� ���ø����̼� �ý��ۻ��� 
+						���� ��η� �����Ͽ� return
+					       *ServletContext�� �޼���
+					       -���� �ٿ�ε� ���ε�� Ȥ�� IO�۾���
+					       -Context root��θ� ������ ��θ�
+
+					InputStream getResourceAsStream(String path):
+						������ ���� ������ ��θ� ������
+						������ �ִ� �ڿ�(�̹���,�ؽ�Ʈ����..���)�� ����
+						�Է� ��Ʈ���� ��ȯ
+						������ ��ο� �ش��ϴ� �ڿ����κ��� �����͸� �о� �� �� �ִ�
+					        InputStream�� ����
+
+
+
+		6] excetion ��ü
+
+
+			- JSP ���������� �߻��� ���ܸ� ó���� �������� ������ ��� ���� �������� ���޵Ǵ� ��ü
+			- exception ��ü�� isErrorPage="true" �� ������ ������������ ��� ������ ���ΰ�ü
+			- java.lang.Throwable Ŭ���� Ÿ��
+
+				
+			- �ֿ� �޼���
+
+				String getMessage():�߻��� ������ �޽����� return
+				String printStackTrace(): �߻��� ���ܸ� �������ϱ� ���� ǥ�� ���� ��Ʈ���� �����.
+
+
+
+			*web.xml�� <error-page>������Ʈ�� �����ؼ� ������ ó���� �� �ִ�.
+			<!-- IE�� ������ ������쿡 �������� ������  ����ȭ���� �ƴ�  ��ü ���� 
+			�����޽��� ȭ���� ������-->
+				<!--
+				��������ڵ尡 404��500�� ���� �����ڵ��̰� ��ü ���� ��� 
+				����Ÿ�� ���̰� 513���� ������
+				
+				-->
+
+			��]
+			<error-page>
+				<!--  �����ڵ带 �̿��� ���� ó�� -->
+				<error-code>404</error-code>
+				<!-- ���ؽ�Ʈ ��Ʈ�� ������ ������ -->
+				<location>/error/error404.jsp</location>  
+			  </error-page>
+			<error-page>
+			<!--  �ڹ��� ���� Ŭ������ ��Ű�� �����ؼ� ���� -->
+			<exception-type>java.lang.NullPointerException</exception-type>
+			<location>/error/errorNullPointer.jsp</location>
+		  
+			</error-page>
+
+
+[����� �ڵ� ��ȯ�� �޼��� ����]
+
+	----------------+---------------------+-------------------------------------------------------------------
+		Servlet     |         JSP         |       Comment
+	----------------+---------------------+-----------------------------------------------------------------------
+		init()      |      jspInit()      |       �������̵�(o),  <%!  %>�ȿ��� �������̵�
+    ----------------+---------------------+---------------------------------------------------------------------------
+		destroy()   |      jspDestory()   |       �������̵�(o), <%!  %>�ȿ��� �������̵�
+    ----------------+---------------------+---------------------------------------------------------------------
+		service()   |      _jspService()  |       �������̵�(x), <% %> ��ũ��Ʈ�� �±׾ȿ� �ۼ��� ������_jspService()�޼���ο� ������
+    ----------------+---------------------+--------------------------------------------------------------------
+
+	*JSP���� �޼��带 �����ϰų� �������̵� �Ҷ��� ���� �̿� <%! %>�ȿ���  
+	 �������̵� �ؾ���.
+	
+	*��� �޼��� jspInit(),jspDestory() �ȿ��� JSP�� ���� ��ü�� ��� ���Ѵ�. 
+	 �ֳ��ϸ� ���尳ü�� ���������� __jspService()�޼��忡 ����� �������� �̱⶧����
+         �� out.println()Ȥ�� request,session,response���� ���� ��ü ���Ұ�
+
+	
+	���� ��ü�� ����]
+
+		Page ���� :pageContext��ü�� ����
+			�ѹ��� Ŭ���̾�Ʈ ��û�� ���Ͽ� �ϳ��� JSP �������� ȣ��Ǹ�, 
+			�̶� �� �� ���� page��ü���� ������ �ȴ�.
+		Request ����:reuest��ü�� ����
+			Ŭ���̾�Ʈ�� ��û�� ���� ���� ��û�� �����ϴ� �������� �����ȴ�.
+			��û�� jsp�������� �ٸ� jsp�� <jsp:include>�ϰų� <jsp:forward>�ϴ� ���
+			�� �� �������� ���� ��û ������ ���ϰ� �Ǿ� ���� request ��ü�� 
+			�����ϰ� �ȴ�.
+			�� �������� ��û�� �Ҷ����� ���ο� request��ü�� ������.
+		session ����:session��ü�� ����
+			���� �������� ������ ��û�Ǵ� ���������� ���� sessionü����
+			�����ϰ� ��
+		application ����:application��ü�� ����
+			�� ���ø����̼Ǵ� 1���� application ��ü�� ������.
+			���� �� ���ø����̼ǿ��� ��û�Ǵ� ���������� ���� 
+			application��ü�� ������.
+
+		������ ũ��]
+		
+		page < request < session < apllication���� ��
+
+
+		�� ������ ����� �Ӽ��� �Ҹ�ñ�]
+
+		page����:page�� ���� ����
+		request����: �������� ��û�� ���� ������ �Ϸ�ɶ�
+		session����:session�����
+		application����: ���� �����
+
+
+	���� ��ü�� �Ӽ�]
+		
+		-pageContext,
+		request,
+		session,
+		application
+		��ü�� �Ӽ��� 
+		JSP������ ���̿��� ������ �ְ� �ްų� �����ϱ� ���� �������� ����.
+
+		- �Ӽ� �߰�
+			
+			setAttribute(String name,Object value): 
+			name�̶�� �̸��� �Ӽ��� value�� ����,
+			���� �⺻ �ڷ����� ������ ��� Ŭ���� Ÿ�� 
+
+		- �Ӽ��� �� ���
+
+			Object getAttribute(String name): name�̶�� �̸��� ���� �Ӽ��� ���� ����
+
+		- �Ӽ� ����
+
+			removeAttribute(String name):name�̶�� �̸��� �Ӽ� ����
+
+		-�Ӽ��� �̸� ��� ���ϱ�
+
+			java.uti.Enumeration getAttributeNames() :�Ӽ��� �̸� ����� ����
+			                                pageContext��ü�� �� �޼��带 �������� �ʴ´�.
+
+
+		
+
+[Action Tag]
+
+	-JSP�� ǥ�� �±��̴�.
+	-<jsp:�±׸�>���� ǥ���Ѵ�.
+	-�������� ������������ ���� �̵��̳� �ڹٺ�(���� �ǹ�)���� ����ϴµ� �̿�ȴ�.
+	-Action�±��� �� �Ӽ������� ǥ������ �̿��� ���� ���� �� ���� �մ�.
+	��,���þ�� �Ұ�
+	<%@ include file="<%=pageName%>" %>[x]
+	
+	-�ҽ������ ������(WAS����)���� �ؼ��Ǿ� �׼��±װ� ������ ����
+
+
+	-Action Tag�� ����
+		
+		-XML ������ ������.
+		-�ݵ�� �����±׸� ����ؾ� ��
+			��]
+			<jsp:include page="example.jsp" flush="false">
+				<!-- �ּ��� �� �� ���� .�ּ� �޸� ����-->
+				<jsp:param name="�Ķ���͸�" value="�Ķ���Ͱ�">
+			</jsp:include>
+			Ȥ�� 
+			<jsp:include page="example.jsp" flush="false"/>
+			
+
+	- Action Tag�� ����
+	
+		1)<jsp:include>
+
+			- �������� ���ȭ �� �� ���.			
+			- include�� �������� �ӽ������� ��� �Ű�ٰ� 
+			�� ���� ����� �ش� �������� ����.
+			- ������ ��ġ�� �ʰ� ����Ʈ�� ����� �� 
+			  include�� ������ ��°� ���� ������ ����� �����Ѵ�.
+			- request��ü�� �����Ѵ�.
+
+			
+			-�Ӽ�
+				page: ���ȭ�� ���������
+				flush:  ������ jsp�������� �����ϱ����� ��¹��ۿ�
+				         ��������� ������ ���������� �ƴ����� ����
+				         true�� ��� ��������� ������ ���� ��������� 
+					 ���������� ����������
+				         ���Ե� jsp���������ĺ��ʹ� �� �̻� ��������� ���� 
+					 �۾��� �ִ� ��� ���ϰ� �ȴ�.
+				       
+				       ��]
+					-include.jsp
+
+				       <jsp:include page="top.jsp" flush="false"/>
+					<%
+					
+					Cookie cookie = new Cookie("memID","choi");
+					response.addCookie(cookie);
+					
+					%>
+					*false�ÿ��� ��������� ��Ű �߰��� �׷��� true�ÿ���
+					��������� ��Ű�� �߰� �ȵ�.
+
+
+				<jsp:include page="���Ե����������" />
+					page���� ������/����� �� ����ǳ�
+					�����νÿ��� ���ؽ�Ʈ ��Ʈ ��� ����(inlcude���þ ����)
+			
+			��]
+			
+				<%
+				String content=request.getParameter("name");
+				%>
+				<jsp:include page="<%=content%>" flush="false"/>
+
+			
+			�� include ���þ�� <jsp:include>�׼� �±��� ������			
+
+				- <jsp:include page=""/>�� �ٸ� jsp�� �帧��� �̵����� 
+				�� ������� ���� ��ġ�� ���Խ�Ű�� ����� �ݸ�,
+
+				- <%@ include file=""%>�� �ٸ� ������ ������ ���� ��ġ�� 
+				  ���Խ�Ų �Ŀ� 
+				  jsp������ �ڹ� ���Ϸ� ��ȯ�ϰ� ������ �ϴ� ����� ���̴�.
+
+				
+
+
+			�� include ���þ�� �׼��±��� ���ó
+			
+				include directive��
+
+				
+				- ��� jsp���������� ������ �����ϴ� ��� �� �����ϴ� ������
+				  �����ϰ��� �Ҷ� ���
+				
+			   <jsp:include>�׼� �±״� �ַ� �������� ���̾ƿ��� 
+			                       ���ȭ �ϰ��� �Ҷ� ���
+					      - �������������� �̷���� �������� �����Ҷ�
+			
+		 
+
+
+		
+		2)<jsp:forward>
+		
+
+
+			-�ٸ� �������� ���α׷��� ��� �̵��ϴ� ��쿡 ���
+			-<jsp:forward>�� ������ ������ ����� ��� �����ϰ� �ش��ϴ� 
+			   �������� �̵�.�� <jsp:forward> ������ ���������� ����ϴ�
+			   jsp�ڵ�� �ǹ� ����.
+			-��¹��۸� ������� ���� ���(buffer="none") �� 
+			  �׼��±׸� ������ �� �����߻�(JSP�Ծ�)
+			-request ��ü�� �����Ѵ�.
+			-���ǿ�  ���� ������������ �̵��ؾ� �� ��쿡 ���
+
+			-forward �׼� �±״� �Ʒ� �ڹ��ڵ�� ���� �׼��� ����Ų��
+			 <%
+				RequestDispatcher rd=request.getRequestDispatcher("�������ų ��������");
+				rd.forward(request,response);
+			 %>
+
+
+			-�Ӽ�
+				page: �̵��� ��������
+				
+
+			��]
+				<jsp:forward page="�̵��� ��������"/>
+				<jsp:forward page="<%=expression%>" />
+
+
+			-������ �̵� ������
+
+				-<jsp:forward/>:
+				                            �������� �̵���Ű��,�̶� �̵��� �������� �̵���Ų �������� 
+							    request�� �����Ѵ�.
+							    forward�� Ŭ���̾�Ʈ�� ��ž��̼��������� ó���Ǳ� ������ 
+							    �����̷�Ʈ
+							    ���� ���� ������ ������
+								-url�� ���� �ȵ�
+
+				-response.sendRedirect():
+				         �޼ҵ忡 ������ url�� �������� �̵���Ų��.
+					 �׷��� forward�׼ǰ��� �޸�
+					���ο� request�� �߻���Ų��
+					���� sendRedirect�� ���ο� ��û�� �߻����� �������� �̵� ��Ų�� ���ķε� 
+					������ ��� �����Ѵ�
+					������ ���� ���ϰ� �Ϸ��� return;��� ��
+										(
+										location��ü�� href�� ����)
+					-url�� �����.
+
+
+
+		
+		3)<jsp:useBean>
+	
+			- �ڹٺ�(Java Bean)(���� �ǹ��� �ڹٺ�) ��ü ������ ���	
+			
+			- �ڹٺ� ������ ������ ���ÿ� scope�� ������ ������ 
+			   �Ӽ����� id���� ������ �̸�����  
+			   �׸��� �Ӽ����� �ڹٺ� ��ü�� ������
+			
+			- <jsp:useBean>�׼� �±״� �ڹٺ� ������ ������ ��ü�� 
+			                        �����ϸ� �������� �ʰ� 
+			   ������ ��ü�� �״�� �����
+			   (class�Ӽ� ����)
+			   �׷��� class��ſ� type�Ӽ��� ����ϸ� ������ ��ü�� �����ϰ� �ִٰ� 
+			   �����ϱ� ������
+			   ���࿡ ��ü�� �������� �ʴ´ٸ� �����߻�
+
+
+			- scope�� ������ ���� ���� �ڹٺ� ��ü�� ����Ǵ� �Ӽ��� ���� �⺻ ��ü�� �Ʒ��� ����
+
+				page:pageContext ���� ��ü
+				request:request ���� ��ü
+				session:session ���� ��ü
+				application: application���� ��ü
+	
+			- �Ӽ�
+				id : ������ �ڹٺ� ��ü�� �̸��� ��� - �ν��Ͻ� ���� ����
+				
+				class : �ڹٺ� Ŭ���� ���� ���,
+				          Ŭ������ ��Ű���� ������ Full Name�� ���
+					  �� import�� �Ͱ� ����.
+				         class�Ӽ� ��ſ� 
+					 type�� ����(�ڹٺ� ��ü�� ���� �Ѵٰ� ����-������ �����߻���)
+
+				scope : �ڹٺ��� ��ȿ ���� �� ���� ���� ���
+				        page, request, session, application ���� ���� ����.	
+					page ���� �⺻��
+						
+
+			��MVC�����ӿ�ũ�� ���� ǥ�����(EL)�� ������� ���� ���󵵰� �پ��.
+			 
+			��]
+				<jsp:useBean id="jbd" 
+				class="�ڹٺ��� ��Ű���� ������ ��ü Ŭ������" 
+				scope="request"/>
+			
+
+				���ڵ�� �Ʒ��� �ڹ� �ڵ�� ����
+
+				JavaBeansDemo jbd = (JavaBeansDemo)request.getAttribute("jbd");
+				//������ �ڹٺ� ��ü jbd�� ���ٸ�
+				if(jbd==null){
+					
+					//�ڹٺ� ��ü jbd����
+					jbd=new JavaBeansdemo();
+					//request������ �Ӽ����� jbd��ü�� ����
+					request.setAttribute("jbd",jbd);
+	
+
+				}
+
+			
+
+			- Java Bean(���� �ǹ�)�̶� 
+					�����͸� ǥ���ϴ� ���� �������� �ϴ� 
+					�ڹ� Ŭ����(Data Transfer Object:DTO).
+				        �ڹٺ� �Ծ��� ������  Ŭ����. 
+				            
+			
+			- �ڹٺ� �Ծ�
+
+				
+				1) Bean�� ��� ����(�Ӽ�,������Ƽ)�� �ݵ�� private�� �����Ѵ�. 
+				2) Bean�� �޼ҵ�� public���� �����Ѵ�.
+				3) �Ӽ��� �ش��ϴ� setXXX/getXXX �迭�� �޼��尡 ���� �ؾ� �Ѵ�.
+				4) ��������� �޼ҵ� �߰� �����ϴ�.
+
+				* form�� ��������� �̸��� 
+				 �ڹٺ��� �Ӽ�(�������)�� �̸��� ���� �ϴ°� ����.
+
+				 MemberDTO member = new MemberDTO();
+				 member.setId("kim");
+				 member.setPwd("1234");
+
+		4)<jsp:setProperty >
+
+			-Java Bean ��ü�� �Ӽ��� �����ϴ� ���
+			-�ڹٺ��� setXXX() �Լ��� ȣ��
+
+			-�Ӽ�
+				name  : �ڹٺ� ��ü�� �̸�(useBean�±��� id�Ӽ��� ������ �� 
+				�� �ν��Ͻ� ������ �־��ش�)
+				property: �Ӽ���.�� �ڹٺ��� ��� ����
+						property="*"��� ������ ��� form�� ������ҿ� ��ġ�ϴ� �ڹٺ��� ��� �Ӽ��� ����ڰ� �Է��� ���� ������.
+						�̶��� value�Ӽ� ����.
+						��]
+						<jsp:setProperty name="�ڹٺ�" property="*"/>
+					
+				value : ��������� ������ ��
+				        value��ſ� param�Ӽ��� ����� �� �ִ� param �Ӽ� ���ÿ��� form�� ���� ����� �̸��� �־��ָ�
+						�� ������ҿ� �ش��ϴ� ���� �����޴�.
+						��]<jsp:setProperty name="�ڹٺ�" property="�ڹٺ�Ӽ�" param="��������Ҹ�"/>
+			
+					     
+					
+
+
+
+		
+
+		5)<jsp:getProperty>
+			-Java Bean ��ü�� �Ӽ��� �о� ���� ���
+			-�ڹٺ��� getXXX() �Լ��� ȣ��
+
+			-�Ӽ�
+				name  :�ڹٺ� ��ü�� �̸�
+				property: �Ӽ���
+
+		���߿�]
+		jsp:getProperty �� jsp:setProperty�� name�Ӽ�����
+		�ݵ�� jsp:useBean�׼� �±��� id�Ӽ��� ������ ���̾�� �Ѵ�
+		�ڹ��ڵ�� ������ �ν��Ͻ� ������ �Ұ�.	
+				
+
+
+		6)<jsp:param>
+
+			-<jsp:inlcude>�׼��±׳� <jsp:forward> ���� ����Ÿ�� �����ϰ��� �Ҷ� ���
+			-StringŸ���� ���� ���� �� �� �ִ�.			
+			-String���� �ƴ� �ٸ� �ڷ����� �����ϰ��� �Ҷ��� 
+			 param�׼��±װ� �ƴ� ���� ��ü�� �Ӽ��� �̿��Ѵ�.
+
+			- �Ӽ�
+				name:�Ķ���� ��
+				value:�Ķ���͸�� �ش��ϴ� ��
+				
+				<jsp:param name="�Ķ���͸�" value="��"/>
+
+
+
+[��Ű(Cookie)] 2019-08-12
+
+	- ��Ű��?
+
+		��Ű�� ���������� �����ϱ� ���� ����� 
+		Ŭ���̾�Ʈ�� ���������� �����Ѵ�.
+
+		- ��Ű�� Ŭ���̾�Ʈ�� PC�� ���������� ����Ǵ� ������ ������ �ǹ�.
+		- �������� ���������� ������ ��Ű�� ����� �ʿ��� �����͸� �о�� �� �ִ�.
+
+		- ��Ű�� �� ũ�Ⱑ �ϳ��� 4KB ���Ϸ� ������ �Ǿ� ������, 
+		  �� 300������ ������ ������ �� �ִ�. 
+		  ����,�ִ�� ���尡���� ��Ű�� �뷮�� 1200KB �� 1.2MB
+
+
+
+
+	- ��Ű�� �ֿ� �޼���
+
+		String getName():��Ű�� �̸� ����
+		String getValue():��Ű�� �� ����
+		String getPath():��Ű�� ���� ��� ���� - setPath()�� �� ������ null
+		int getMaxAge():��Ű�� ��ȿ�ð� ��?- setMaxAge()�� �� ������ -1
+		setValue(String value):��Ű�� �� ���� 
+		setDomain(String domain):��Ű�� ����Ǵ� ������ ����
+		                         ���굵���ο��� ��Ű�� 
+					 �����ϰ��� �Ҷ����� 
+					 ".������"�� �־��ش�
+					 ��]www.naver.com���� ������ 
+					 ��Ű�� mail.naver.com������ 
+					 �����ϰ��� �Ҷ�
+				         setDomain(".naver.com");
+		setPath(String path):��Ű�� ����Ǵ� �������
+				 ������ ��ζǴ�  ���� ��ο��� ���ؼ��� ��Ű�� ����ȴ�.
+				��]
+				setPath("/notice");notice���丮�� �� ���� 
+				             ���丮������ ��Ű�� ����� �� �ִ�
+				setPath("/"):�� ���ø����̼� ��ü ��ο��� ����ϰ��� �Ҷ�
+
+							
+								
+		setMaxAge(int exp):��Ű�� ��ȿ�ð��� �� ������ ����. 
+                           ��ȿ�ð��� �������� ������ ��Ű������ 
+			   �������� �޸𸮿� ����ǰ� 
+			   ���������� ������  �ڵ����� �����ȴ�.
+			   ��ȿ�ð��� �����ϴ� ��� ��Ű������ ������� pc�� ����ȴ�.
+						    
+
+
+	- ��Ű ���� ���� �� ���۹��
+
+		1) Ŭ���̾�Ʈ�� ó�� ������ �����ϸ� ������ ��Ű�� 
+		   �����ϰ� http���� ����� ��Ű�� �Ǿ ������.
+		2)�Ŀ� ����ڰ� �� ����Ʈ�� �ٽ� �湮�ϴ� ��� 
+		   ���������� ����� ��Ű ������ ������ �����Ѵ�.
+		3)������ �� ��Ű ������ �̿��� �ʿ��� �۾��� �����Ѵ�.
+
+	
+	- ��Ű�� �� �����(�α��� ó��)
+
+
+			1)��Ű ��ü ���� 
+
+			
+				javax.servlet.http.Cookie cookie =
+				new javax.servlet.http.Cookie(String name, String value)
+
+
+			2)������ ��Ű�� response��ü�� ���� ��������� �߰�
+
+				response.addCookie(��Ű��ü)
+
+
+			��]
+
+				Cookie cookie = new Cookie("memID","choi");
+				response.addCookie(cookie);
+			
+
+
+
+	- ��Ű�� ����� �� �о� ����(�α��� ���� �Ǵ�)
+	
+				-request��ü�� getCookies()�޼��带 �̿��ؼ� �о�´�.
+
+				Cookie[] cookies = request.getCookies()
+				
+			
+
+				��]
+				Cookie[] cookies = request.getCookies();
+
+				if(cookies!=null && cookies.length > 0){
+				
+					for(int i =0;i< cookies.length;i++){
+
+
+						out.println("��Ű��: "+cookies[i].getName()+",��Ű ��:"+cookies[i].getValue()+"<br/>");
+
+					}
+
+				}
+	
+				
+	- ��Ű ����(�α׾ƿ�)
+
+			-setMaxAge()�޼����� ���ڰ��� 0�� �־ �����Ѵ�.
+
+			Cookie cookie = new Cookie("memID","");
+			cookie.setMaxAge(0);
+			response.addCookie(cookie);
+
+	- ��Ű�� ����
+
+		�ش� ��Ű������ �ٽ� Cookie��ü�� �����ϸ� �ȴ�. 
+		��, �ش� ��Ű�� �������� ���Ӱ� ��Ű�� �����ȴ�
+			
+			��]
+			Cookie[] cookies = request.getCookies();
+
+					if(cookies!=null && cookies.length > 0){
+					
+						for(int i =0;i< cookies.length;i++){
+
+							if(cookies.getName().equals("memID")){
+								
+								Cookie cookie = new Cookie("memID","lim");
+								response.addCookie(cookie);
+							}
+
+						}
+
+					}
+
+		
+
+	- ��Ű�� ���� ���
+
+			 ���� : �������� ���������� �����ϴ� ��Ű�� ������ ��
+			 Set-COOKIE : name=value ; expire=date ; path=path; domain=domain; secure
+
+			 name: �� ��Ű�� �����ϴ� �� ���Ǵ� �̸�
+			 value : ��Ű�� �̸��� �ش��ϴ� ��
+			 expire : ��Ű ��ȿ �Ⱓ.   expire�� ������� ������ ���� ���������� ����Ǵ� ���ȸ� ��ȿ��
+			 domain: ��Ű�� ����Ǵ� ������
+			 path: ��Ű�� ����Ǵ� ���丮 ���
+
+	- ��Ű �̸� �� ���� ���� ��Ģ(RFC2109�Ծ�)
+		
+		:��Ű �̸��� �ƽ�Ű�ڵ� ���ĺ��� ���ڸ� ������ �� �ִ�.
+		:�޸�(,), �����ݷ�(;), ����('') ���� ���ڴ� ������ �� ����.
+		:$�� ������ �� ����.
+
+		���� �ѱ۵��� ��Ű���� �����Ϸ��� �ݵ�� ���ڵ� ó���� ����� �Ѵ�.
+
+	   ��] 
+						  Cookie cookie = 
+						  new Cookie(URLEncoder.encode("�̸�","UTF-8"),URLEncoder.encode("ȫ�浿","UTF-8"));
+						  response.addCookie(cookie);
+
+						  out.println(URLDecoder.decode(cookie.getName()));
+						  out.println(URLDecoder.decode(cookie.getValue()));
+	
+[����(Session)]
+
+	- �����̶�?
+	
+		Ŭ���̾�Ʈ�� ������ ������ �ִ� ���¸� ���ϴ°����� 
+
+		�湮�ڰ� �� �������� ���� ������ �����ϰ� �ٽ� ���������� �ݾ�
+
+		�������� ������ �����ϴ� �ϳ��� ������ �����̶� �� �� 
+		������ ������ �����Ⱓ�� �ǹ���
+
+
+		- Ŭ���̾�Ʈ�� ���������� �����ϱ� ���� ���. 
+		  ���� ��ü�� session��ü�� ������ �����.
+		- ��Ű�� Ŭ���̾�Ʈ�� ��������� session�� ������ ����ȴ�.
+		- session ��ü�� ���������� 1���� ��ü�� �Ҵ�Ǿ� 
+		 ����� ������ ���õ� �۾��� ���� �� �ַ� ���
+		- page �������� session �Ӽ��� "true"�� ��쿡�� ��� ����.(�⺻�� true)
+		- seeeion��ü�� �����ð����� 
+		  �ƹ��� ��û�� ���� ������ �ڵ������� ���� �ȴ�
+		  (�⺻: 30��)
+		-���� ������ ���������� JSESSIONID��� ��Ű������ ���Ǿ��̵��� 
+		 ��Ű������ �����Ѵ�.
+
+		- session��ü�� �ֿ� �޼���
+
+				String getId(): �ش� ������ ���� ID�� return
+				long getCreationTime(): 
+				session�� ������ �ð��� 1970�� 1��1�� ���� �귯�� 
+				�ð��� 1/1000�ʴ�����  return
+				long getLastAccessedTime():
+				�� �������� ��û�� ���������� �õ��� �ð��� 
+				1970�� 1��1�� ���� �귯�� �ð��� 1/1000�ʴ�����  return
+				void setMaxInactiveInterval(time): 
+				session�� ������ �ð��� �� ������ ����
+				int getMaxInactiveInterval():�������� �ð� ���				
+				void invalidate():���� �⺻��ü�� ������.
+				�� �Ҵ�� ������ �Ӽ����� ��� ����,�ַ� ������ ������ �� ���.
+				boolean isNew(): ���ο� Ŭ���̾�Ʈ���� �Ǵ�. 
+				�� ���ο� �����̸� true ,�ƴϸ� false ����
+
+
+		- ���� ��ȿ �ð� ����
+				
+				
+				��)web.xml����
+					WEB-INF/web.xml�� <session-config>������Ʈ���� ����(�� ����)
+					<session-config>
+						<session-timeout>20</session-timeout>
+					</session-config>
+				��)session��ü�� �޼���� ����(�� ����)
+
+					session.setMaxInactiveInterval(60*20);
+			
+		- ���ǰ�ü�� �� �����(�α��� ó��)
+
+				session.setAttribute(String key,Object value)
+
+		- �� �о� �ö�(�α��� ���� �Ǵ�)
+				Object value=session.getAttribute(String key);
+
+		- ���� ��ü�� Ư�� �Ӽ�  ����
+
+				session.removeAttribute(�Ӽ���);
+
+		-  ���ǰ�ü�� ����� ��� �Ӽ� ������(�α׾ƿ� ó��)
+				session.invalidate();
+
+
+		�ҽ���] ��� ���ǰ�ü�� ����� �� �о� ����
+
+		 Enumeration<String> en=session.getAttributeNames();
+
+		 while(en.hasMoreElements()){
+			 
+			String key= en.nextElement();
+			
+			Object val = session.getAttribute(key);
+			out.println(key+"==="+val.toString()+"<br/>");
+			 
+		 }
+	
+
+
+
+
+
+[Expression Language]
+		
+		
+		${}
+		
+	
+		- ���� ǥ���ϴµ� ���Ǵ� ��ũ��Ʈ ���� 
+		   JSP�� �⺻ ������ �����ϴ� ������ ��.
+
+		  �� ���� ����ϴµ� ����Ѵ�.���� �Ҵ������� ���Ѵ�(��:${sum=10}
+		- ǥ����(<%= %>)�� ����ϴ� �ͺ��� ������ ������� ���� ��� �� �� �ִ�.
+		- �ڹ� �ڵ带 ����ؾ� �ϴ� ��� ������ ��밡��
+
+		- �ڹٽ�ũ��Ʈ���� Ȯ���ϰ� 
+		   Xpath(XML ������ ������ �����ϱ� ���� ���Ǵ� ���)���� ��Ʈ�� ��� 
+		  ������� ���
+		- null ���� ���� ������ ���� ���� �����ϰ�, 
+		  �������� ��ȯ�� ���� �� �ڵ����� ���ش�
+
+		  �� ���� ���� ���� ���� ��� ������ �߻���Ű�� �ʰ� 
+		    �ƹ����� ������� ������.(NullPointerException���� �ȳ�)
+		- ��ü�� ���� �����Ҷ� �ڹٺ�(���� �ǹ�) ��ü�� ������Ƽ ��Ģ�� ���� �����Ѵ�.
+		  
+		  ��]
+
+			<%
+				Member member = new Member();
+				member.setName("ȫ�浿");
+				
+			%>
+			<c:set var="mem" value="<%=member%>"/>
+
+			
+			 
+
+			${mem.name}  =>�� member.getName()�� ȣ���� �Ͱ� ����.
+
+
+		  ��2 ]	
+				-[forward.jsp]
+
+				<%@ page contentType="text/html;charset=UTF-8" %>
+				<%@ page import="el.member.*" %>
+
+				<%
+
+					Member m = new Member("ȫ�浿","����",20);
+
+					int num = 10;
+					String str="���ڿ�";
+
+					request.setAttribute("member",m);
+					request.setAttribute("num",num);
+					request.setAttribute("str",str);
+
+
+
+				%>
+				
+				<jsp:forward page="elEtcDemo.jsp"/>
+
+
+				-[elEtcDemo.jsp]
+				<%@ page contentType="text/html;charset=UTF-8"%>
+				<%@ page import="java.util.*,el.member.*" %>
+
+				<h2>forward�� ���޵� �� ����</h2>
+
+				--�ڹ��ڵ��<br/>
+				<%
+					Member m = (Member)request.getAttribute("member");
+
+					String name1 = m.getName();
+					String addr = m.getAddr();
+					int age = m.getAge();
+
+
+					String str = (String)request.getAttribute("str");
+
+					int num  = (Integer)request.getAttribute("num");
+
+				%>
+				
+
+				�̸�:<%=name1%><br/>
+				�ּ�:<%=addr%><br/>
+				����:<%=age%><br/>
+
+				���ڿ�:<%=str%><br/>
+				����:<%=num%><br/>
+
+				--EL������ <br/>
+
+				�̸�:${member.name}<br/>  //requestScope���� ����
+				�ּ�:${requestScope.member.addr}<br/>
+				����:${requestScope.member.age}<br/>
+
+				���ڿ�:${str}<br/>
+				����:${requestScope.num}<br/>
+
+				---���� Ÿ��Ʈ<br/>
+				����:${member.age1}<br/>  //-->����
+				����:${member1.age}<br/>  //-->���� �ȳ��� ���� ��� �ȵ�
+				
+				���ڿ�:${str2}<br/> //-->���� �ȳ��� ���� ��� �ȵ�
+
+
+				*EL������ ��û �Ķ���ʹ� 
+				 param.�Ķ���͸�(=request.getParameter():����ȯ �ʿ�)
+				 Resquest.setAttribute()�� ������ �Ӽ��� 
+				            ${�Ӽ���} Ȥ�� ${requestScope.�Ӽ���}����
+					    (=request.getAttribute():����ȯ �ʿ�)
+
+	
+
+				�� �� ������ ����� ���� EL�� �о� �ö� �Ӽ����� �����ϴٸ� 
+				   EL�� ���� ��ü������ ������ ������Ʈ �������� �о� �´�.
+				    ������ ����� ���� EL�� �о� �ö� ������ �������� ������
+				    ���� �������� ���������� �о� �´�
+
+				  
+				     
+				 ��]	
+					
+					------B.jsp----------------------------					
+
+
+					<%
+					request.setCharcaterEncoding("UTF-8");
+					application.setAttribute("msg","���ø����̼�");
+					session.setAttribute("msg","����");
+					request.setAttribute("msg","������Ʈ");
+					
+					//�ڹ��ڵ�� FORWARD
+					
+
+					
+					
+					%>
+					
+					-------A.jsp---------------------------
+					${msg}   =>"������Ʈ" ���ڿ��� ��� ��
+
+
+		ǥ������� ���]
+
+			- JSP�� �װ��� �⺻ ��ü�� �����ϴ� ������ �Ӽ� ���
+			- ������ �����ڸ� ����.
+			- �ڹ� Ŭ���� �޼��� ȣ�� ����
+			- ǥ������ ��ü ����
+	
+		ǥ������� ����]
+
+			
+			
+			-  ${expresion}
+			-  expression�� ǥ���� ������ ������ ���� ���� ǥ���ϴ� ��
+			   expression���� �ڹ��ڵ忡�� ������ ��ü������ ���� ���� ���Ѵ�.
+			   JSTL�� �̿��ؾ� ��.
+
+			-  JSP ��ũ��Ʈ[��ũ��Ʈ��(<% %>),ǥ����(<%= %>),
+			   �����(<%! %>)]������ ��� �Ұ���	
+			-  Action Tag�� JSTL(<c: set  />)���� �Ӽ��� ������ ����� �� �ִ�. 
+			  <jsp:include page="/${info.type}/info.jsp" />
+			-  �� ��ũ��Ʈ ��ҿ��� ǥ����ó�� ���� ����ϱ� ���� ��� ����.
+			     <b>${sessionScope.memeber.id}</b>
+			   �� JSP ��ũ��Ʈ ��ҿ����� ����� �Ұ��ϰ� 
+			    ���� ��� �±� ��ҿ��� ǥ���� �����ϴ�
+
+			   ���:jsp��ũ��Ʈ�ȿ����� �����ϰ� 
+			   ��� �±׷�(Action Tag,JSTL,HTML)������ ����Ҽ� �ִ�.
+			
+			
+				
+
+		ǥ������� ���� ��ü]
+
+			pageScope: pageContext �⺻ ��ü�� ����� �Ӽ��� <�Ӽ�,��> ������ ������ Map Collection
+			requestScope:request �⺻ ��ü�� ����� �Ӽ��� <�Ӽ�,��> ������ ������ Map Collection
+			sessionScope:session �⺻ ��ü�� ����� �Ӽ��� <�Ӽ�,��> ������ ������ Map Collection
+			applicationScope:application �⺻ ��ü�� ����� �Ӽ��� <�Ӽ�,��> ������ ������ Map Collection
+			
+			���� ���ö�: XXXXScope.�Ӽ���
+			
+			param:��û �Ķ������ <�Ķ���͸�,��> ������ ������ 
+			         Map Collection,�Ķ���Ͱ��� Ÿ���� String
+			      request.getParameter(�Ķ���͸�)�� ����
+
+			 ���� ���ö�:param.�Ķ���͸�
+
+			paramValues:��û �Ķ������ <�Ķ���͸�,���迭> ������ ������ Map Collection
+						�Ķ���Ͱ��� Ÿ���� String[], request.getParametervalues(�Ķ���͸�)�� ����
+			
+			���� ���ö�: paramValues.�Ķ���͸�
+
+			header:��û������ <����̸�,��> ������ ������ Map Collection
+			���� ���ö�: header.����� ��, user-agent�� ���
+			                    ������ - (�뽬) �� ���⶧����
+					    header["user-agent"]�� ��� ��?
+			
+			headerValues:��û������ <����̸�,���迭> ������ ������ Map Collection
+			             request.getHeaders(�̸�)����� ����
+
+			cookie:<��Ű��,��> ������ ������ Map Collection.
+			
+			�� ���ö�: cookie.��Ű��.value
+
+		
+			initParam:�ʱ�ȭ �Ķ������ <�̸�,��>���θ� ������ Map Collection .
+			application.getInitParameter(�̸�)����� ����
+
+			�� ���ö�: initParam.�Ķ���͸�(web.xml�� ������)
+			
+			
+			pageContext:JSP�� pageContext�⺻ ��ü�� ����
+
+					  jsp���� ���ؽ�Ʈ ��Ʈ�� ��� �ö� <%=request.getContextPath()%> �̿�
+					  el������ ${pageContext.request.contextPath}
+					              �� request��ü ��(getReuest()) getContextPath() �޼��� ȣ���� �Ͱ� ����
+
+
+
+		EL�� ����Ÿ Ÿ��]
+
+			����� Ÿ��:true,false
+			����Ÿ��:0~9�� �̷���� ������
+			�Ǽ�Ÿ��:0~9�� �̷���� �ְ�,�Ҽ��� �� ���� ǥ�� ����
+			���ڿ� Ÿ��:' �Ǵ� " �� ǥ��
+			��Ÿ��:null
+			                                                                                                                                    
+			
+
+
+	
+		EL�� ������]
+
+			1)��� ������:+,-,*,/,%,div(/������),mod(%�� ����)
+					
+				��] ${"2"+1} =>3  :���������� ���ڿ��� ���ڷ� ��ȯ��.
+					
+					
+
+					${"��"+1} =>����
+					${null+1} => 1 :null�� 0���� ó�� ��
+
+					${3/2} => 1.5 :doubleŸ������ ��ȯ�� ���� ����
+
+
+				����] �ڹٿ��� ��Ʈ�� ����� +�� ���� ������ EL������
+				       +�� ���� ���꿡�� ����Ǵ� ��������.
+				       ��� ���ڿ��� +�� ����ÿ��� ����[X]
+				 
+
+			2)�� ������:==(eq),!=(ne),<(lt),>(gt),<=(le),>=(ge)
+
+						
+					${"hello"=="hEllo"} => 
+					�ڹ��� �ּҺ񱳰� �ƴ϶� ���ڿ��� ��:false
+
+					�ؼ��� �񱳽� �ڹ��� StringŬ������ compareTo()�޼ҵ� �������
+					  ���� true�ƴϸ� false�� ��ȯ�� �ش�
+			3)���������: &&(and),||(or),!(not)
+
+
+			4)empty������:��ü�� ��� �ִ��� �˻�
+				empty<��> :���� null,���ڿ�(""),
+				���̾� 0�� �迭,���尳ü�� 0�� Collection�� ��� true����
+
+			5)���� ������
+			    <����>?<��1>:<��2>  ��] ${ 10 >2 ? 10: 2} =>10
+
+			   
+
+
+				��]
+				<%
+					ArrayList list = new ArrayList();
+				
+					list.add("ȫ�浿");
+					list.add("�����");
+				%>
+				<%=list.get(0)%><br/>
+
+				<c:set var="lt" value="<%=list%>"/>
+				${lt[0]} <br/>
+
+				empty: ${not empty lt ? "��ü�� ����":"��ü�� �����"}
+	
+
+		EL���� ��ü�� ����]
+
+			-��(.) �̳� ���ȣ([])�� ����ؼ� �����Ѵ�.
+			[]�� �迭���� ���� �����ö� �ַλ��
+			  
+		
+			��]
+			
+				${param.name} �̳� ${param["name"]}�� ���� ǥ���̴� => request.getParameter("name")
+
+				${header.host}:${header.host} [o]
+				${header["user-agent"]}[o]
+				${header.user-agent}[x]
+
+				Ȥ�� ��ü�� �ε����� ���ٽÿ� []�� ����Ѵ�.
+
+				<%
+					ArrayList list = new ArrayList();
+					list.add("ȫ����");
+					list.add("�����");
+
+					String[] mountain ={"�Ѷ��","������","���ǻ�"};
+
+				%>
+				<c:set var="obj" value="<%=list%>"/>
+				<c:set var="mountain" value="<%=mountain%>"/>
+				${obj[0]} =>ȫ�浿
+
+				
+				${mountain[0]}=>�Ѷ��[o]
+				${mountain["1"]}=>������[o]
+				${mountain['2']}=>���ǻ�[o]
+				${mountaib.0}=>����[x]
+
+				
+		
+
+		EL������ �ڹ� Ŭ���� �޼ҵ� ȣ��]		
+
+
+			ȣ���� ���� �ۼ�����]
+
+				1)�ڹ� Ŭ���������� �ۼ��Ѵ�.
+					-EL���� Ŭ������ �޼��带 ȣ���Ϸ��� Ŭ���� ���ǽ� �޼��带 
+					�ݵ�� public static���� �����ؾ� �Ѵ�.
+
+				2)TLD(Tag Library Descriptor) ������ �ۼ��Ѵ�.
+
+					-Ŀ���� �±��� ������ �����ϴ� XML������ ����
+					
+					-tld������ WEB-INF/�Ʒ��� �ٷ� ���ų� ���� ���丮�� �θ�
+					 �����̳ʰ� �ڵ����� ã�Ƽ� ��.(WEB-INF/tlds���丮�� ��ġ)
+
+					-tld������ �±� ��ҿ� ���� ���Ǵ� �Ʒ� JSP 2.1 ���忡�� ����
+					http://jcp.org/aboutJava/communityprocess/final/jsr245/index.html
+
+					Ȥ�� jakarta-taglibs-standard-1.1.2\jakarta-taglibs-standard-1.1.2\tld����
+					fn.tld ���� ��
+					standard.jar���� standard\META-INF\���� fn.tld ����
+
+					<?xml version="1.0" encoding="UTF-8" ?>
+					<taglib xmlns="http://java.sun.com/xml/ns/j2ee"
+						xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+						xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-jsptaglibrary_2_0.xsd"
+						version="2.0">
+    
+						  <description>My Tag library</description>
+						  <tlib-version>1.1</tlib-version>
+						  <short-name>my</short-name><!--���ξ�� ����� �̸�-->
+                           
+						  <function><!-- EL���� ����� �Լ����ǽ� ����ϴ� ������Ʈ. �޼��� �ϳ��� �Ѱ�-->
+								<name>myFunc</name> <!---EL���� ����� �޼��� ��--->
+								<function-class>Ŭ���� ��ü ���(��Ű������)</function-class>
+								<function-signature>
+									java.lang.String �޼����(java.lang.String )
+									<!-- �޼��� ���.����Ÿ�԰� ������ Ÿ���� ������ Ŭ���� �̸�.
+									������
+									 ��� Ÿ�Ը� ���´�,
+									�� �⺻�ڷ����� ���� �⺻ �ڷ�����(��: int)
+																					 
+									          					 -->
+								</function-signature>
+
+						  </function>
+
+					</taglib>
+
+
+					 
+					 
+
+				3)web.xml�� �ۼ��Ѵ�.
+					-tld���Ͽ� ���� ���� �߰�
+						<jsp-config>
+							<taglib>
+								<taglib-uri>	
+									/WEB-INF/tlds/tld���ϸ� 
+									<!-- JSP�� taglib���þ��� uri�Ӽ��� �־� �� ��-->
+								</taglib-uri>
+								<taglib-location>	
+									/WEB-INF/tlds/tld���ϸ� <!-- tld������ ��ġ-->
+								</taglib-location>	
+
+							</taglib>
+						</jsp-config>
+
+				4)�ڹ� �޼ҵ忡 �����ϴ� JSP ������ �ۼ��Ѵ�
+
+					<%@ taglib prefix="my" uri="/WEB-INF/tlds/tld���ϸ�" %>
+
+
+					${�±׶��̺귯�����ξ�:�޼����(����1[,����2,..])}
+					-�޼������ tld���Ͽ��� ������ 
+					<function-name>������Ʈ�� �ؽ�Ʈ
+
+				
+				
+
+	
+[JSTL(JSP Standard Tag Library)]
+
+	- ǥ��ȭ �� custom Tag �̴�.
+	- ���� ���Ǵ� ����� ���� �±׸� ��Ƽ� JSTL�̶�� �Ծ��� ����.
+	- JSP���� Java Source �� ������� �ʰ�, �±׸��� ������ �ۼ��ϵ��� �Ѵ�
+	  �׷��� �������� ������Ŵ
+	- ��ũ��Ʋ��, ǥ������ ����ϴ� �ͺ��� �ξ� ������ ���� ������ ����.
+	- JSP 2.1(��Ĺ 6����) �� ȣȯ�Ǵ�JSTL������ 1.2�̴�.
+    -  JSTL�� 5������ �±׸� �����Ѵ�.
+
+	��<script> </script>�±� �ȿ��� �ۼ��� ���ڸ������� �ȵ� �� CTRL+SPACE�� Ŭ����
+	�Ӽ����� ���� ���� .���� �ڵ��ؾ���
+
+
+	----------------+-------------------------------------------+-------------+---------------------------------------------
+                    ���̺귯��    |             ���                                                  |     ���ξ�      |            ���� URL
+                ---------------+-------------------------------------------+-------------+---------------------------------------------
+                      Core           |   ��������, �帧 ����, URL ó��                      |       c            |    http://java.sun.com/jsp/jstl/core 
+	  ---------------+-------------------------------------------+-------------+----------------------------------------------
+                     XML            |   XML �ھ�, �帧 ����, XML ��ȯ                     |       x            |    http://java.sun.com/jsp/jstl/xml
+	----------------+-------------------------------------------+-------------+--------------------------------------------
+                     ����ȭ         |   ����, �޽��� ����, ���� �� ��¥ ����             |       fmt          |    http://java.sun.com/jsp/jstl/fmt
+	----------------+-------------------------------------------+-------------+-----------------------------------------------
+                  �����ͺ��̽�   |   SQL                                                           |       sql          |     http://java.sun.com/jsp/jstl/sql
+	----------------+-------------------------------------------+-------------+----------------------------------------------
+                       �Լ�           |   �ݷ��� ó��, String ó��                               |       fn           |    http://java.sun.com/jsp/jstl/functions
+	----------------+-------------------------------------------+-------------+----------------------------------------------------
+
+
+
+	ȯ�漳��]
+
+		1) http://jstl.java.net/����->downloads jstl->���� jstl-api-1.2.jar�� jstl-impl-1.2.jar
+             Ȥ��
+            http://www.apache.org/->�ϴ� project���� Tomcat->������ taglibŬ��->Apache Standard TaglibŬ��-> Standard 1.1�ٿ�
+        
+        �� �ٿ� �޴´�
+		2)�ٿ� ���� jar������ �ش� ������Ʈ�� WEB-INF/lib������ �����Ѵ�. 
+
+		Ȥ�� 
+		http://tomcat.apache.org/taglibs/standard/-> Servlet 2.4, JavaServer Pages 2.0 downloads-> binaries/->
+		jakarta-taglibs-standard-1.1.2.zip �ٿ��� ������ Ǯ�� jstl.jar�� standard.jar�� WEB-INF/lib������ ����
+
+
+	
+	JSP������ ����]
+
+		- taglib ���þ ����Ͽ� JSTL�� �±� ���̺귯���� �����Ѵ�.
+
+		  <%@ taglib prefix="���ξ�" uri="�� �±��� ���� URL�ּ�" %>
+
+		  ���ÿ��� <���ξ�:�±׸� />������ ���
+
+
+
+	Core Tag�� �ֿ� ���]
+
+		-ǥ�����(Expression Language) ���� ���
+			<c:catch>, <c:out>, <c:remove>, <c:set>
+		-�帧���� ���
+			<c:choose>, <c:when>, <c:otherwise>, <c:forEach>, <c:forToken>, <c:if>
+		-URL ���� ���
+			<c:import>, <c:param>, <c:redirect>, <c:url>
+		- ����
+
+			<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+
+
+	Core Tag�� ����]
+		
+		------------+----------------+------------------------------------------------
+		���             |     �±׸�           |          ��ɼ���
+		------------+----------------+-----------------------------------------------
+		���� ����     |      set                |      EL���� ���� ������ �����մϴ�.
+			         |         remove         |      ������ ������ �����մϴ�.
+		------------+----------------+-----------------------------------------------
+		�帧 ����      |      if                 |      ���ǿ� ���� ���� �ڵ带 �����մϴ�.else���� ����
+			     |      choose        |      ���� ������ ó���� �� ���˴ϴ�.
+			     |      forEach        |      Collection�� �� �׸��� ó���� �� ����մϴ�.
+			     |      forTokens    |      �����ڷ� �и��� ������ ��ū�� ó���� �� ����մϴ�. 
+		------------+----------------+-----------------------------------------------
+		URL ó��      |      import          |      URL�� ����Ͽ� �ٸ� �ڿ��� ����� �����մϴ�.
+			     |      redirect        |      ������ ��η� �̵��մϴ�.
+			     |      url                |      URL�� �� �ۼ��մϴ�. 
+		------------|----------------+-----------------------------------------------
+		��Ÿ �±�     |      catch            |     ���� ó���� ����մϴ�.
+			     |      out               |    jspWriter�� ������ �˸°� ó���� �� ����մϴ�.
+		------------+----------------+----------------------------------------------
+
+
+	
+
+		set/remove �±�]
+
+		- <c:set/>�� setAttribute("�Ӽ���","��") �� ���� ����. 
+		
+		<c:set var="EL������"  value="��" scope="����"/>
+		  
+		- EL�Ŀ��� ����ϴ� EL ������ �����ϴµ� ���ȴ�.
+
+		- ������ ���� �Ҵ��Ѵ�.
+		  �ڹٺ� �̳� �÷��ǰ� ���� ��ü�� �Ӽ��� ���� �Ҵ��ϱ�
+		  ���ؼ��� target �� property�Ӽ��� �̿��Ѵ�.
+
+		  target�� property�Ӽ��� 
+		  �ڹٺ��̳� Map�迭 ��ü���� ���� �� �� �ִ�.
+
+		- ����
+
+				- ������ �Ϲ����� �� ������
+
+					<c:set 	
+					var="���� ������ EL ������"  
+					value="������ ������ ��"	
+					[scope = "������ ������ ����"]/>
+					
+						- value: ǥ����,EL,������ �ؽ�Ʈ�� ����Ͽ� ���� ���� �� �� �ִ�.	
+						- scope: page/request/session/application �� �ϳ� �⺻���� page.
+
+				- ��ü�� �Ӽ��� �� ������
+					��c:set �±׿��� var�Ӽ��� �����Ǿ�߸�  scope�Ӽ��� ���� �� �ִ�.
+					�� step2]������ scope�Ӽ��� ������ �� ����
+					step1]<c:set  scope = "��ü�� ������ ����" var="��ü����"  value="<%=new Member()%>/>
+
+					step2]<c:set 	target="var���� ������ �ڹٺ� ��ü������ Map ��ü����" 
+					               property="�ڹٺ� ��ü�� Map ��ü�� ���� ������ �Ӽ���" 
+							value="������ �Ӽ��� ��"	
+							/>
+
+						- var�Ӽ��� �߰����� �ʴ´�.
+						- target:ǥ�����̳� EL������ �����Ѵ�
+						
+						* target�� �ڹٺ� ��ü�� ���� �ݵ�� 
+						   �� Ŭ�����ȿ� set�迭�� �޼��尡 ���� �Ǿ�� �Ѵ�.
+						  target�� Map�� ���� put(Ű��(�Ӽ���),��)�� 
+						  �̿��ؼ� ó���ϴ� ���̴�..
+
+
+				
+					�� <c:set>������Ʈ ���̿� Text�� value�� ������ ���� �ִ�</c:set>
+
+
+
+				- set�±��� �Ӽ� ���
+
+				--------------+----------------+------------------+-------------------------------------------
+					�Ӽ�	  |	  ǥ����/EL    |       Ÿ��       |                ����
+				--------------+----------------+------------------+--------------------------------
+					var       |      X		   |	   String	  |		  EL������ �̸�
+				--------------+----------------+------------------+--------------------------------------------
+					scope     |      X         |       String     |       ������ ������ ����.�⺻ ���� page
+				--------------+----------------+------------------+----------------------------------------------
+					value     |      O         |       Object     |       ������ �Ҵ��� ��
+				--------------+----------------+------------------+------------------------------------------------
+					target    |      O         |       Object     |       �ڹٺ� ��ü Ȥ�� Map�迭 �÷���
+				--------------+----------------+------------------+---------------------------------------------
+					property  |      O         |       String     |       �Ӽ���
+				--------------+----------------+------------------+-------------------------------------------------
+			
+			    *target���� ǥ���ð� EL������ ��ü�� ���� �Ѵ�.
+				*target�� ǥ������ ����ϴ� ���� ��ü�� �ڹ��ڵ�� ���� �� ��쿡��
+				��]
+					<cr:set var="map" value="<%=new Hashtable()%>"/>
+					<cr:set target="${map}" property="name" value="ȫ�浿"/>
+					<cr:set target="${map}" property="info">
+						�츮�ô��� ������ ���� �����Դϴ�.
+					</cr:set>
+					<cr:set target="${map}" property="age" value="��"/>  =>[O]
+					<cr:set target="map" property="age" value="��"/>     
+					=>[x] target���� �ݵ�� ǥ�����̳� EL������
+					<cr:set target="<%=map%>" property="age" value="��"/> 
+					=>[x],�� <% Hashtable map=new Hashtable() %>�� ���� ����
+
+
+		
+
+
+	
+		remove �±�]
+
+			- removeAttribute�� ���� ����
+			- �ش� scope �� �ִ� ������ �����ϴ� ������ �Ѵ�.
+			- ������ �����ϴ� ��� scope�� ���� ������ ���� ���� �ʴ´�.
+			- scope�� �������� ������ ������ �̸����� ����� ��� ������ ������ ���� ��.
+
+			-����
+
+				<c:remove
+				var="������" 
+				[scope ="�Ӽ��� ���������� ��ȿ�Ⱓ�� ����"]/>	
+
+
+	
+
+		if �±�]
+			
+			- <c:if/> �� ���ǹ��� ����ϴ� ��쿡 ���
+
+			-����
+
+				<c:if
+				test="������ �Ǻ���"
+				var="EL ������"			
+				scope="������ ���������� ����"
+				>
+				
+				-var �Ӽ����� test�Ӽ��� ���� �����  �����(EL������)				
+				-test�Ӽ����� ǥ����,EL�� �Ǵ� ���� ���ڿ��� �� �� �ִ�.
+				-test�Ӽ��� ����ǥ���Ҷ� �� ���� ���� ������ false
+				 �� test="${10 > 3}" }�ڿ� �� ���� �����ؾ� ��
+
+				��
+				<c:if test="${param.name == 'hong'}" var="result" scope="session">
+					ȫ�浿 �̱���
+				</c:if>
+
+
+	
+		
+		
+
+
+		choose ~when ~otherwise �±�]
+
+			-<c:choose/> �±״� java �� switch ���� ������, 
+			  ���ǿ� ���ڿ� �񱳵� �����ϰ� ������ ������ �д�. 
+			  ���� <c:if/> �±׿� else �� ���� ������ ���� ��ü ��ɵ� �����Ѵ�.
+			- �ϳ� �̻��� <c:when>, <c:otherwise>�� ���� sub tag�� ���� �� ����.
+			
+			- ����
+			<c:choose>
+				<c:when test="����1">����1�� �����ϴ� ���</c:when>
+				<c:when test="����2">����2�� �����ϴ� ���</c:when>
+				<c:when test="����3">����3�� �����ϴ� ���</c:when>
+				<c:otherwise>������ �������� �ʴ� ���</c:otherwise>
+			</c:choose>
+		
+
+
+		forEach�±�]
+
+			-  �迭 �Ǵ� Collection�Ǵ� Map�� ����Ǿ� �մ�  
+			    ������ ���������� ó�� �Ҷ� ���
+			- for���� Ȯ�� for���� ������ ����.
+
+			- ����
+
+				<c:forEach
+				items="�ݺ��� ��ü��"
+				[begin="���۰�"]
+				[end="������ ��"]
+				[step="������"]
+				var="������"   =>for(int i=1 ; i <=10;i++)�϶� 
+				                        i�� 1���� 1�� �����ϸ鼭 10���� ����
+							�̶� var�Ӽ��� i ������ �ִ°Ŵ�
+							begin = "1"
+							end = "10"
+							step="1"
+				[varStatus="LoopTagStatus ��ü�� ������ ����"] />
+
+		
+
+				items: �迭,Map,Collection�� �� �� �ִ�.
+
+				LoopTagStatus ��ü�� �Ӽ�
+
+					index: [�ڹ��� �Ϲ� for�� ������ ���]
+							-�ݵ�� begin�Ӽ��� end�Ӽ� �ʿ�
+							 step�� ���� ����(����Ʈ 1)
+							 index�� begin �� ���� ���ϴ� ���� ��� ����.
+
+							 var="������"   =>for(int i=1 ; i <=10;i++)�϶� 
+				                        i�� 1���� 1�� �����ϸ鼭 10���� ����
+							�̶� var�Ӽ��� i ������ �ִ°Ŵ�
+							begin = "1"
+							end = "10"
+							step="1"
+
+						 [Ȯ�� for�� ���� �� �÷����̳� �迭���� �� �����ö�]
+							-var �� items�Ӽ��� �ʼ�
+						        -index�� 0���� ����
+
+							�ڹ� Ȯ��for��]
+							for(�÷��� Ȥ��  �迭�� ��� �ִ� Ŭ����Ÿ��  ���� : �÷��� Ȥ�� �迭��){
+
+
+							}
+
+							var="������" =>����
+							items =>�÷��� Ȥ�� �迭��
+
+					count:�ݺ� ���� Ƚ��(1����)
+					begin:begin �Ӽ���
+					end:end �Ӽ���
+					step:step�Ӽ���(����Ʈ ���� 1)
+					first:���� ������ ù��° ������ ��� true
+					last:���� ������ �ݺ��� ������ ������ ���true
+					current:�÷����� ���� �������� ����� ��ü
+
+			
+				--------------+----------------+------------------+-------------------------------------------
+					�Ӽ�	  |	  ǥ����/EL    |       Ÿ��       |                ����
+				--------------+----------------+------------------+--------------------------------
+					var       |      X		   |	   String	  |		  EL������ �̸�
+				--------------+----------------+------------------+--------------------------------------------
+					items     |      O         | �÷���,�迭,Map��|       �ݺ� ó���� ����Ÿ
+				--------------+----------------+------------------+----------------------------------------------
+				 varStatus    |      X         |       String     |       �ݺ������� ������ EL������
+				--------------+----------------+------------------+------------------------------------------------
+					begin     |      O         |       int        |       �����ε��� ��
+				--------------+----------------+------------------+---------------------------------------------
+					end       |      O         |      int         |       ���� �ε��� ��
+				--------------+----------------+------------------+-------------------------------------------------
+					step      |      O         |      int         |       �ε��� ������
+				--------------+----------------+------------------+-------------------------------------------------
+
+			
+
+		forTokens �±�]
+
+			- StringTokenizer �� ����ϴ� �Ͱ� ������ ���
+			-����
+               123-123-4444
+				<c:forTokens
+				items="���ڿ�"
+				delims="���ڿ��� ������ ������"
+				[begin="�ݺ��� ���۰�"]
+				[end="�ݺ��� ������ ��"]
+				[step="������"]
+				var="������"
+				[varStatus="LoopTagStatus ��ü�� ������ ����"]
+				
+
+				*items���� ���ڿ��� �;� �Ѵ�.
+				forEach�±�ó�� �迭�̳� Collection���� �ü� ����.
+
+			
+			<c:forTokens var="color" items="red,yellow,black" delims=",">
+				<c:out value="${color}">
+			</c:forTokens>
+
+		import �±�]
+
+
+			- ������ �� ���ø����̼��� �ڿ� �Ӹ� �ƴ϶�, 
+			   FTP, HTTP �� ���� �ܺ� �ڿ��� ������ ���� ��ġ��
+			  �����ϰų� EL������ �����Ҷ� ���.
+			 
+			- ����
+				<c:import
+				url="url"
+				[var="�о�� �����͸� ������ ������"]
+				[scope="������ ��������"]				
+				[charEncoding="�о�� �������� Character set�� ����"] />
+
+				*var�Ӽ��� ����ϴ� ���  �о�� ����Ÿ�� ���� ��ġ�� �ٷ� �������� �ʰ�
+				   EL������ ����� ���� ����Ҷ� ���Ե���.
+				*var�Ӽ��� �̿����� ���� ��� <jsp:include>�׼� �±׿� �����ϴ�
+
+				*��û �Ķ���ʹ� ���� url�� �߰��ϰų� <c:param name="�Ķ���͸�" value="��"/>�� 
+				  �׿��ؼ� �߰� �� �� �ִ�.
+
+				*url�Ӽ��� charEncoding�Ӽ��� ǥ���ð� ELǥ���� �����ϴ�.
+				
+
+
+		redirect �±�]
+
+			-response.sendRedirect ���
+			-request�� �������� �ʴ´�.
+			��,response.sendRedirect �ʹ� �ٸ��� ������ �ڵ�� �������� �ʴ´�.
+
+			-<c:param>�±׸� �̿��ؼ� �Ķ���͸� url�� �߰� �� �� �մ�.
+			- ����
+				<c:redirect
+				url="�̵��� URL" [context="���ؽ�Ʈ���"] />
+
+				*url�� / �� ������ ��� ���� ���ؽ�Ʈ ��ΰ� �߰��Ǽ� �����̷�Ʈ �ϰ�
+				���� �ٸ� ���ؽ�Ʈ ��η� �����̷�Ʈ �ϰ� �ʹٸ� context�Ӽ��� �߰� �� �ش�.
+
+				*<c:redirect>�±װ� ����Ǹ� �� ������ �ڵ�� ������� �ʴ´�.
+
+				<c:redirect url="/�ٸ� ���ؽ�Ʈ�� �ִ� jsp" context="/�ٸ� ���ؽ�Ʈ��"/>
+
+				*url �� context�Ӽ��� ǥ����/ELǥ���� ����.
+
+		
+		url �±�]
+
+			
+
+			-Query paramter�� ���� url�� �����Ѵ�.
+			-<c:param>�±׸� �̿��ؼ� �Ķ���͸� url�� �߰� �� �� �մ�.
+
+			-var�Ӽ��� �������� ���� ��� ���� ��ġ�� url�� ����ϰ� ,
+			������ ��쿡�� �ش� EL������ ����ȴ�
+			-����
+				<c:url
+				[var="EL ������"]
+				value="������ URL"
+				[scope="�������� ���� ����"] />
+
+
+				<c:url value="/customer/register" var="registrationURL"
+					<c:param name="name" value="${param.name}"/>
+					<c:param name="country" value="${param.country}"/>
+				</c:url>
+
+
+
+		   out �±�]
+
+
+			- JSP�� ǥ������ ��ü�ϴ� ������ �����. ȭ�鿡 �ش��ϴ� ������ ���� ����Ѵ�.
+             
+			- ����
+				<c:out
+				value="����� ��" 
+				[default="�⺻���� ����"] -�� value�� ������ ���� ���� ��� ,default�� ������ ���� ��µ�
+				[escapeXml="Ư������ ó������"] />
+				
+				*value�� �Ϲ������� ���ڿ��̳�
+				Reader��ü�� ������ out�±״� Reader�κ��� ���� �о�� 
+				jspWriter�� ���� ����ϳ�.
+
+				* escapeXml �� true�� ��� <,>,&,��," �� &lt; &gt; &amp; &#039; &#034�� ���(�⺻���� true)
+
+				
+				<c:out value="${browser}" escapeXml="true" />
+
+			catch �±�]
+		
+				- body ��ġ���� ����Ǵ� �ڵ��� ���ܸ� catch �ϴ� ����
+
+				- ����
+				<c:catch
+				var="EL ������">
+				������ �߻��� ��� ������ EL ������ �����޽����� ����ȴ�.
+
+				*EL�� ������ �����ϱ⶧���� �ַ� �ڹ��ڵ忡�� 
+				���� ������ ó�� �Ҷ� ���ȴ�.
+
+				
+				<c:catch var="errMsg" >
+
+
+					���ܰ� �߻��� �� �ִ� �ڵ�
+
+				</c:catch>
+
+
+				${errMsg}
+
+
+		����ȭ �±�]
+
+			formatNumber �±�]
+
+				- ���ڸ� ��Ŀ� ���� ���ڿ��� ��ȯ���ִ� �±�
+
+				<fmt:formatNumber value="���ڰ�"  [type="�� Ÿ��"]
+				                  [currencySymbol="��ȭ �ɹ�"]  
+								  [groupingUsed="(true/false)"]
+						          [var="������"] [scope="����"]
+
+				- var �� scope�Ӽ��� ������ ��� �Ӽ��� EL�İ� ǥ���� ���� ����
+
+				-type: number :���� �������� ���(�⺻��)
+				       percent: %�������� ���
+					  currency:��ȭ �������� ���
+					  type�� percent�϶� value�Ӽ��� ������ ���� 100�����Ѱſ� ����
+				-currencySymbol :��ȭ ��½� ����� ��ȣ ǥ��
+							(type�� currency�϶� �ǹ� ����)
+                                                        ��] currencySymbol="$"
+							     �� ������ ���� ��ȭ �ɹ��� ���(�ѱ�:\��)
+
+                               
+				-groupingUsed:�޸�(,)�� ���� ������ �����Ҷ� 
+				                     ���Ǵ� ��ȣ�� ����� ���� ����
+				                     �⺻�� true
+				-var: �������� ����� ������ ������ ,
+				        var �Ӽ��� �������� �ʴ� ��� ��ٷ� ��� ��
+
+
+			formatDate �±�]
+
+				- ���ڿ��� ǥ�õǴ� ��¥ �� �ð� ���� java.util.Date�� �Ľ����ִ� ���
+				- var �� scope�Ӽ��� ������ ��� �Ӽ��� EL�İ� ǥ���� ���� ����
+
+				<fmt:formatDate value="��¥��" [type="Ÿ��"]
+				                         [dateStyle="��¥��Ÿ��"] [timeStyle="�ð� ��Ÿ��"]
+							 [pattern="���Ϲ��ڿ�"]
+							 [var="������"] [scope="����"]
+							 
+				
+				value: �������� ��¥ �� �ð� ���ڿ� ��(java.util.DateŸ�� ����)
+				type: ��¥,�ð� �Ǵ� �Ѵٸ� ����?������ ����
+				        time,date(�⺻��),both ���� �ϳ� ����
+
+				dateStyle:��¥�� ���� �̸� ���ǵ� ������ ��Ÿ���� ����
+				              default(�⺻��),short,medium,long,full�� �ϳ� ����
+					
+				timeStyle:�ð��� ���� �̸� ���ǵ� ������ ��Ÿ���� ����
+					    default(�⺻��),short,medium,long,full�� �ϳ� ����
+				pattern:
+				��¥������ ���Ͽ� �°� ��� java.util.SimpleDateFormat�� ���� ����
+					   ��] "yyyy-MM-dd HH:mm:ss"
+
+					  �� pattern�Ӽ� ������ type�� �ǹ� ���� �� pattern��
+		                             ������ ���Ĵ�� ��µ�.
+				
+
+		JSTL �Լ�]
+
+			length(obj):obj�� Collection�� ��� ����� �׸��� ������ ����,
+			                 ���ڿ��� ��� ���ڿ��� ���̸� ����
+			toUpperCase(str):���ڿ��� �빮�ڷ� ��ȯ
+			toLowerCase(str):���ڿ��� �ҹ��ڷ� ��ȯ
+			substring(str, idx1, idx2):str.substring(idx1,idx2)�� ����� ����.
+			                                   idx2�� -1�� ��� str.substring(idx)�� ����
+			substringAfter(st1, str2):str1���� str1�� ���ԵǾ� �ִ� str2������ ���ڿ��� ���Ѵ�
+			substringBefore(str1, str2):str1���� str1�� ���ԵǾ� �ִ� str2������ ���ڿ��� ���Ѵ�
+			trim(str):str�¿��� ���� ���� ����			
+			replace(str, src, dest):str�� �ִ� src�� dest�� ��ȯ
+		
+			indexOf(str1, str2):str1���� str2�� ��ġ�� �ε����� ���Ѵ�
+			startsWith(str1, str2):str1�� str2�� ������ ��� true,�ƴϸ� false
+			endsWith(str1, str2):str1�� str2�� ���� ��� true,�ƴϸ� false
+			contains(str1, str2):str1�� str2�� �����ϰ� ���� ��� true,�ƴϸ� false
+			split(str1, str2):str2�� �������� str1�� �з��ؼ� �迭�� ����
+			join(array,str2):array�� ����� ���ڿ��� ��ġ�µ� �� ���ڿ� ���̿� str2�� �ٴ´�
+			escapeXml(str):Ư������ ó�� ������� < �� &gt; �� ��ȯ
+
+
+
+
+[Ŀ�ؼ� Ǯ(Connection Pool)]
+
+	-Ŀ�ؼ� Ǯ�̶�?
+		
+		�� ȯ�濡�� ó�� ����Ÿ���̽����� ������ ����ϰ� �߻��ϴ� ���,
+		�׶����� Ŀ�ؼ��� �����ϰ� �ݰ� �Ǹ�
+		���ҽ��� ����� ����� �ð��Һ� �ϰ� �ȴ�
+		�̸� �����ϱ� ���� �̸� Ŀ�ؼ��� ������ pool�� �־� ���� ��û�� 
+		������ Ŀ�ؼ��� pool���� ������ ����
+		�� ���� ���� �ٽ� pool�� �ݳ��Ѵ�. �̷� ����� Ŀ�ؼ� Ǯ�̶� �Ѵ�.
+
+	-����ġ���� �����ϴ� Ŀ�ؼ� Ǯ(DBCP) ����ϱ�
+
+		-DBCP���� API�� ���� ȯ�� ����(Tomcat 5.5�̻���������� �Ʒ� ���� ����
+		-[��Ĺ��ġ�� ���丮]/lib/tomcat-dbcp.jar�� ���ԵǾ� ����)
+
+			- commons-dbcp package�ٿ�ε�
+				http://commons.apache.org/ ->DBCPŬ��->downloadsŬ��->latest Release Ŭ��
+				Commons DBCP 1.4 for JDBC 4 (JDK 1.6)�� commons-dbcp-1.4-bin.zip�ٿ�ε�
+
+			*The commons-dbcp package relies on code in the commons-pool package to provide the underlying object pool mechanisms that it utilizes.
+			
+			- commons-pool package�ٿ�ε�
+				http://commons.apache.org/ ->POOLŬ��->downloadsŬ��-> Apache Commons Pool Downloads page Ŭ��
+				Commons Pool 1.6�� commons-pool-1.6-bin.zip�ٿ�ε�
+
+			->������ Ǯ�� commons-dbcp-1.4.jar�� commons-pool-1.6.jar�� WEB-INF/lib�� �����Ѵ�
+		
+			��DBCP 1.4�� JDK 1.6������ DBCP 1.3�� JDK 1.5���� ������ �����
+
+		
+
+		[JNDI(Java Naming Directory Interface)�� �̿��� DBCP����]
+
+		   -��Ĺ�� ��ŸƮ �ϸ鼭 ��Ĺ����/conf/server.xml�� context.xml�� ������ ��� 
+		    Ŀ�ؼ�Ǯ�� �����ϰ�
+		    ����ڴ� ������ Ŀ�ؼ�Ǯ���� Ŀ���� ��ü�� ������ ���� �ȴ�.
+		    (JNDI�� �̿��ؼ� ������ ��)
+		   -���������� ����Ÿ�� �ٿ��� �� ����Ÿ�ҽ��� ����(lookup�ؼ�) Ŀ�ؼ� ��ü�� ��� �� �� �ִ�.
+
+			*Reference URL
+
+			www.apache.org->Tomcat������Ʈ Ŭ��->
+			���� Document�޴��� ��Ĺ���� Ŭ��->JNDI Resources Ŭ��
+
+			http://tomcat.apache.org/tomcat-6.0-doc/jndi-datasource-examples-howto.html
+
+			1] DBCP���� API�� ���� ȯ�� ����
+
+					
+
+					- commons-dbcp package�ٿ�ε�
+							www.apache.org�� commons������Ʈ ����
+						http://commons.apache.org/ ->DBCPŬ��->downloadsŬ��->latest Release Ŭ��
+						Commons DBCP 1.4 for JDBC 4 (JDK 1.6)�� commons-dbcp-1.4-bin.zip�ٿ�ε�
+
+					*The commons-dbcp package relies on code in the commons-pool package to provide the underlying object pool mechanisms that it utilizes.
+					
+					- commons-pool package�ٿ�ε�
+						http://commons.apache.org/ ->POOLŬ��->downloadsŬ��-> Apache Commons Pool Downloads page Ŭ��
+						Commons Pool 1.6�� commons-pool-1.6-bin.zip�ٿ�ε�
+
+					->������ Ǯ�� commons-dbcp-1.4.jar�� commons-pool-1.6.jar�� WEB-INF/lib�� �����Ѵ� Ȥ�� jdk-����/jre/lib/ext�� �����Ѵ�.
+				
+					��DBCP 1.4�� JDK 1.6������ DBCP 1.3�� JDK 1.5���� ������ �����
+
+
+			2])Tomcat����/conf/server.xml�� <GlobalNamingResources>�±� ���̿� ����
+			
+				--��� �� ���ø����̼��̵��� ������ ����� �� ���ҽ��� ����ϰ� �� �� �ֵ��� 
+		 
+		 
+				<Resource auth="Container"
+				driverClassName="oracle.jdbc.driver.OracleDriver" 
+				maxTotal="20" maxIdle="20" 
+				name="jdbc/myoracle" password="tiger" 
+				type="javax.sql.DataSource"
+				url="jdbc:oracle:thin:@127.0.0.1:1521:orcl" 
+				username="scott"/>
+			
+
+
+				initialSize - The initial number of connections that will be created in the pool during pool initialization. Default: 0
+				maxTotal - The maximum number of connections that can be allocated from this pool at the same time. Default: 8
+				minIdle - The minimum number of connections that will sit idle in this pool at the same time. Default: 0
+				maxIdle - The maximum number of connections that can sit idle in this pool at the same time. Default: 8
+				maxWaitMillis - The maximum number of milliseconds that the pool will wait (when there are no available connections) for a connection to be returned before throwing an exception. Default: -1 (infinite)
+
+
+
+			3]Tomcat����/conf/context.xml�� <Context reloadable="true"> �±� ���̿� �Ʒ��κ� ����
+		 
+				<ResourceLink global="jdbc/myoracle"
+				name="jdbc/myoracle"
+				type="javax.sql.DataSource"/> 
+
+			4] �ڹ��ڵ忡�� �Ʒ��� ���� �ڵ�
+				
+				javax.naming.*�� javax.sql.*,java.sql��Ű�� import
+		 
+				InitialContext initContext = new InitialContext();
+				//JNDI�������� ��Ʈ�� ���(NamingException�߻�)
+				//Context envContext  = (Context)initContext.lookup("java:/comp/env");
+				//Tomcat������ �������ؽ�Ʈ�� ��
+				//DataSource ds = (DataSource)envContext.lookup("jdbc/myoracle");//��Ĺ�� server.xml�� context.xml�� ����� �̸��� ã�´�.
+
+				Ȥ��
+				DataSource ds =(DataSource)initContext.lookup("java://comp/env/jdbc/myoracle");
+
+				Connection con = ds.getConnection();//����Ÿ�ҽ��� Ŀ�ؼ�Ǯ���� Ŀ�ؼ� ��ü�� ��� ��.
+				                                                             
+			
+			*���� ���� �ص� �ȵǸ� web.xml�� �Ʒ� ���� �߰�
+				<web-app> �±׻��̿� �Ʒ� �κ� ����
+		 
+				<resource-ref> 
+					<description>Oracle Datasource example</description> 
+					<res-ref-name>jdbc/myoracle</res-ref-name> 
+					<res-type>javax.sql.DataSource</res-type> 
+					<res-auth>Container</res-auth> 
+				</resource-ref>  
+
+			*JNDI(java naming directory interface):
+			���̹� ����(DNS) ó�� �л�� ��ü�� ã������ Ư���� �̸����� 
+			 ��ü�� ����ؼ� ���� �� �� �հ� �����ִ� ����
+			  �� ���ּ̹����� ���� ��ü�� ����Ҷ� �̸����� �����Ͽ� ����ϰ� 
+			  �ٸ� ���α׷����� �� ��ü�� ã������
+			  �ش� �̸����� ã�Ƽ�(lookup) ����Ѵ�.
+
+
+			  1]Java Naming and Directory Interface�� ����
+			  2] ��� �� ���丮 ���񽺿� �����ϱ����� API
+			  3] �����ڴ� ��ü�� ���(bind,rebind)�ϰ� ã�� ����(lookup)����� �˸� �ȴ�
+			  4] ������ JNDI Driver(service provider�� �θ�)�� ������ ���/���丮 ���񽺸�
+				 �̿��� �� �մ�. JNDI����̹��� �츮�� ȣ���� �̸��� Naming���񽺿��� 
+				 ���� �� �� �ִ°�����
+			 �ٲ��ִ� ���� �� �Ѵ�.
+			 ��κ��� WAS�������� JNDI����̹��� ������ �ִ�.
+			  5] JNDI�� ������ ������ Ž����ó�� Ʈ�� ������ ������ �ִ�. 
+				 JNDIƮ���� ������ �켱 
+				 InitialContext(javax.naming��Ű��)���� �����Ѵ�.         
+			   6] InitialContext���� ���������� WAS�������� �ڱ⸸�� JNDI���ؽ�Ʈ�� �ִ�.
+				  �ٷ� �� JNDI���ؽ�Ʈ���� ã�����ϴ� �˻��۾��� 
+				  java:comp/env(Tomact������ ���)��� ���� ���ؽ�Ʈ���� ���۵ȴ�.
+				  �� JNDI�� Ʈ���������� InitialContext->java:comp/env->�츮�� server.xml�� ����� JNDI���� ã�´�.
+
+
+	
+[�ʱ�ȭ �Ķ���͸� �̿��� JDBC����̹� �ε�]
+
+	- �� ���ø����̼��� ȯ�漳�� ������ web.xml�� �ʱ�ȭ �Ķ���͸� �����Ͽ� 
+	  �� ���ø����̼��� ������ �ڵ����� JDBC����̹��� �ѹ��� �ε��ϵ��� ����.
+
+
+	  ���� ����]
+
+		  1)web.xml�� ����� ����
+
+			-�ʱ�ȭ �Ķ���� ����
+			-����� �ε� �켱���� ����
+
+				<servlet>
+						<servlet-name>JDBCDriver</servlet-name>
+						<servlet-class>myjdbc.driver.FirstLoadDriver</servlet-class>						
+						<load-on-startup>1</load-on-startup><!-- �� ���ø����̼� ������ �� ������� init()�޼��带 ���� ���� �����϶�� �ǹ�-->
+				</servlet>
+				<context-param>
+						<param-name>jdbcDriver</param-name>
+						<param-value>oracle.jdbc.driver.OracleDriver</param-value>	
+				</context-param>
+
+
+		  2)����� Ŭ������ init()�޼��带 �������̵�
+		  
+			-init()�޼��忡�� JDBC����̹��� �ε�
+
+				package myjdbc.driver;
+
+				import javax.servlet.*;
+				import javax.servlet.http.*;
+				import java.util.*;
+
+
+				public class FirstLoadDriver extends HttpServlet{
+
+					public void init() throws ServletException{
+
+						try{
+							
+							String drivers =getServletContext().getInitParameter("jdbcDriver");
+							StringTokenizer st = new StringTokenizer(drivers);
+							while(st.hasMoreTokens()){
+
+								String driver = st.nextToken();
+								Class.forName(driver);
+							}
+
+						}
+						catch(Exception e){
+
+							throw new ServletException(e);
+
+						}
+						
+
+
+					}
+
+				}
+
+		  3) WEB-INF/classes�� ��ġ �ϵ��� ����� Ŭ������ ������
+
+				.java��ġ���丮>javac -d ../classes  FirstLoadDriver.java
+
+				WEB-INF +---classes
+				        +---src----FirstLoadDriver.java
+
+		  4)����Ÿ���̽� ����� ���õ� ������������ Class.forName()���� DriverMabager.getConnection()����
+		    Ŀ�ؼ� ��ü�� ��´�.
+
+			
+			Connection con = DriverManager.getConnection("jdbc:oracle:thin:@127.0.0.1:1521:����Ÿ���̽���","���̵�","�н�����");
+
+
+		�����ؽ�Ʈ �ʱ�ȭ �Ķ����:
+		 -<context-param>������Ʈ�� web.xml�� ����
+		 -�ش� ���ؽ�Ʈ(�� ���ø����̼�)�� �����ϴ� ��� �������
+		     ����
+		 - ������:ServletContextŸ���� getInitParameter("���ؽ�Ʈ �ʱ�ȭ �Ķ���͸�")
+		 �ؼ���� �ʱ�ȭ �Ķ����
+		 -<servlet>������Ʈ�� ����������Ʈ��
+		  <init-param>������Ʈ�� �߰��ؼ� web.xml�� ����
+		 -�ش� ������� ��� ����
+		 -������:ServletConfigŸ���� getInitParameter("����� �ʱ�ȭ �Ķ���͸�")
+		 
+		 ��ServletContext�� ���ؽ�Ʈ �� �� ���ø����̼Ǵ� �ϳ�
+		  ServletConfig �� ������� �ϳ�. 		  	 
+
+[���� ���ε�]
+
+
+	- form�� Method�Ӽ��� �ݵ�� 
+	            post������� post����� ��� 2���� ������ ���ڵ� ����� �ִµ�
+	 	
+	    1)application/x-www-form-urlencode: ���� �̸��� ���۵�(����Ʈ��)
+	    2)multipart/form-data: �����̸��� �Բ� ���� ����Ÿ�� ���۵ȴ�
+
+	- form�� enctype�� multipart/form-data�� �����ؾ� �Ѵ�.
+	- form�� ���� ��ҷδ�  <input type=file> ���
+
+	- form���� encytype�� "multipart/form-data"�� �����ϴ� ���,
+	   ����ڰ� �Է��ϴ� ����� ���ε�Ǵ� ���� ������ �ѹ���
+	  ������ ���޵ȴ�.  �� �� ����ڰ� �Է��� ����� ���� ������ �����ϱ� ����
+	  Ư�� ���ڸ� ����ϴµ� �̰��� boundary��� �Ѵ�.
+	  �ٿ���� ���ڴ� "--"�� �����Ѵ�.
+ 
+
+	MultipartRequest API�� �̿��� ���ε�]
+
+		-API�ٿ�ε� �� ȯ�� ����
+
+			1)http://www.servlets.com/cos/->cos-26Dec2008.zip �ٿ�ε�
+
+			2)������ Ǭ��.
+
+			3)lib������ �ִ� cos.jar������ ���� �Ͽ� WEB-INF/lib������ �ٿ� �ִ´�.
+			(���� ����)
+
+			  ��Ŭ������ ���� javac�����Ͽ��� ����Ϸ���
+			  [jdk����]\jre\lib\ext�� [��Ĺ�̼�ġ�� ���丮]\lib���� �ٿ� �ִ´�.
+
+
+			�� jsp���������� com.oreilly.servlet ��Ű�� �� 
+			  com.oreilly.servlet.multipart��Ű����
+                            import�Ͽ� API�� ����Ѵ�.
+
+			   com.oreilly.servlet.multipart��Ű������ 
+			   �����ߺ��� �ڵ����� �ε����� �ο��Ͽ� �����ϴ� Ŭ������ �������ش�.
+			   (FileRenamePolicy �� DefaultFileRenamePolicy )
+
+
+	
+		- ������
+
+			MultipartRequest(
+			javax.servlet.http.HttpServletRequest request,
+			java.lang.String saveDirectory) 
+
+	 
+			saveDirectory ���丮�� ������ ���ε��ϴ� ��ü�� �����Ѵ�.
+			���ε� �Ǵ� ���� �ִ�ũ��� 1MB. 
+			ũ�Ⱑ �ʰ��� ���� IOException�� �߻���.
+			���ε�Ǵ� �����̸��� ����ð��� �ش��ϴ� ���ڰ� �پ� ����ȴ�.
+	 
+			MultipartRequest(javax.servlet.http.HttpServletRequest request,
+			java.lang.String saveDirectory,
+			int maxPostSize,
+			java.lang.String encoding,
+			FileRenamePolicy policy) 
+			
+			�ִ� ũ�Ⱑ maxPostSize ����Ʈ�̰� 
+			saveDirectory ���丮�� ������ ���ε��ϴµ� ĳ���ͼ��� 
+			encoding���� �����ְ�
+			�ߺ��� ������ ������ ���� ������ ��å�� ����ϴ� ��ü�� ����.
+	 
+			�����Ͽ뷮 �ʰ��� ���� �� MultipartRequest��ü��
+			  ������ �ȵ�.
+                          ��, ���� �� ÷�νÿ��� MultipartRequest��ü �����ǳ�
+			  MultipartRequest�� getFilesystemName("�Ķ���͸�")��
+			  ���� �о�ö� null��.
+			
+			- �ֿ� �޼ҵ�
+
+			String getContentType(name : String): ������ MIMEŸ���� ����
+			File getFile(name : String): ���ε�Ǿ� ������ ����� ������ File��ü�� ����
+			Enumeration getFileNames(): ���ε�� ��� ������ �̸��� ����
+			String getFilesystemName(name : String): ���ε�� ������ ���� �̸��� ����. 
+			�ߺ��� ������ �ø� ��� ���Ӱ� �����ǵ� �����̸� ����
+			String getOriginalFileName(name: String): ������ �Ǳ� ���� ���� ���ϸ� ����
+			String getParameter(name : String): Ŭ���̾�Ʈ�κ��� ���޵� �Ķ���� ���� ����(�ٸ� �� ��� ��� �ö�)
+			Enumeration getParameterNames(): Ŭ���̾�Ʈ�κ��� ���޵� �Ķ���� �̸��� ����
+		
+
+
+
+			*MultipartRequest ��ü�� ���������ν� ���ε尡 �̷������.
+			*���ϸ��� ��� �ö��� getFilesystemName()�޼���� 
+			 �ٸ� ������� ���� ��� �ö��� getParameter()�� ��� �´�.
+			*����� ���ϰ� ���� ���ϸ��� ����
+ 
+
+* MVC����� Model�� ���ϴ� DAO �� DTO����
+
+   Model: ����ó�� ������ ����ϰų� Ȥ�� ����Ÿ ���̽��� ���õ� �۾��� ���.
+   View: ����ڿ��� �������� �κ��� ���(��:JSP������)
+   Controller: Model�� View�� ����
+                   ��] ������� ��û�� �޾Ƽ� �� ��û�� �м��ϰ�
+		   �ʿ��� ����ó�������� ȣ��(Model)�Ͽ� ������� Model�κ��� �޾Ƽ�
+		   ����ڿ��� �� ��� ���� ������ View(jsp������)�� �����ϴ� ���� ���
+
+
+   DAO:(Data Access Object) 
+           -Model�� ����
+	   -����Ÿ���̽��� �׼��� �ؼ� ����Ÿ ���̽��� ������ ����ó�� ���� ��
+	    �Է�/����/����/��ȸ���� ������ ó��
+
+  DTO(Data Transer Object)
+	-Model�� ����
+	-����Ÿ�� �����ϴ� ��ü
+	-��] ����Ÿ���̽��� ���̺��� Ŭ����ȭ �Ѱ�
+
+
+   
+���ڳ����� ������ ��û�ؼ� ������� �� ����ٵ� ����
+
+1]dos>telnet ������ ��Ʈ [����]
+
+2]GET �������� ������ ������  HTTP/1.0 [���͵ι�]  --�Է� ������ �Ⱥ���
+��]
+dos>telnet localhost 8080 [����]
+GET  /InnerObject/SetHeaderOfResponse.jsp HTTP/1.0 [���͵ι�]
+
+
+�ظ�ũ�ɱ�
+HTML�±�: ���ؽ�Ʈ ��Ʈ�� ������ /�� �����ϴ� ������
+                   ��] <a href="${pageContext.request.contextPath}/������1/������2/��û��">
+
+web.xml: ��û���� ������� ���� ��ų��
+                  ���ؽ�Ʈ ��Ʈ�� ������ /�� �����ϴ� ��û�� ���
+
+                 ��]  <url-pattern>/������1/������2/��û��</url-pattern>
+
+����� �ڹ� Ŭ����:
+
+                   forward������� VIEW(JSP������)�� �̵��ϴ� ��� :   ���ؽ�Ʈ ��Ʈ�� ������ /�� �����ϴ� JSP������ ���
+                   ��] req.getRequestDispatcher("/������1/������2/view.jsp").forward(req,resp);
+                   redirect������� VIEW(JSP������)�� �̵��ϴ� ��� :  ���ؽ�Ʈ ��Ʈ�� ������ /�� �����ϴ� JSP������ ���
+                   ��] resp.sendRedirect(req.getContextPath()+"/������1/������2/view.jsp");
